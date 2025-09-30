@@ -1,0 +1,100 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Admin Panel - Alali Concepts</title>
+    <link rel="stylesheet" href="admin.css">
+</head>
+<body>
+    <div class="admin-container">
+        <!-- Login Section -->
+        <div class="admin-login" id="admin-login">
+            <div class="login-form">
+                <h2>Admin Login</h2>
+                <p>Enter admin credentials to access the dashboard</p>
+                <form id="login-form">
+                    <div class="form-group">
+                        <label for="username">Username</label>
+                        <input type="text" id="username" name="username" required value="admin">
+                    </div>
+                    <div class="form-group">
+                        <label for="password">Password</label>
+                        <input type="password" id="password" name="password" required value="admin123">
+                    </div>
+                    <div class="auth-footer">
+                    <p><a href="../index.html">← Back to Home</a></p>
+            </div>
+                    <button type="submit" class="btn">Login</button>
+                </form>
+                <p class="login-hint">Default credentials: admin / admin123</p>
+            </div>
+        </div>
+
+        <!-- Dashboard Section -->
+        <div class="admin-dashboard" id="admin-dashboard" style="display: none;">
+            <header class="admin-header">
+                <div class="admin-nav">
+                    <h1>Alali Concepts - Admin Panel</h1>
+                    <button id="logout-btn" class="btn btn-secondary">Logout</button>
+                </div>
+            </header>
+
+            <main class="admin-main">
+                <!-- Add Product Form -->
+                <div class="admin-section">
+                    <h2>Add New Product</h2>
+                    <form id="add-product-form" class="product-form">
+                        <div class="form-row">
+                            <div class="form-group">
+                                <label for="product-name">Product Name *</label>
+                                <input type="text" id="product-name" name="product-name" required>
+                            </div>
+                            <div class="form-group">
+                                <label for="product-price">Price ($) *</label>
+                                <input type="number" id="product-price" name="product-price" step="0.01" min="0" required>
+                            </div>
+                        </div>
+                        
+                        <div class="form-group">
+                            <label for="product-description">Description</label>
+                            <textarea id="product-description" name="product-description" rows="3" placeholder="Optional product description"></textarea>
+                        </div>
+                        
+                        <div class="form-group">
+                            <label for="product-image">Image URL *</label>
+                            <input type="url" id="product-image" name="product-image" placeholder="https://example.com/image.jpg" required>
+                        </div>
+                        
+                        <div class="form-group">
+                            <label for="product-category">Category</label>
+                            <select id="product-category" name="product-category">
+                                <option value="watches">Watches</option>
+                                <option value="handbags">Handbags</option>
+                                <option value="electronics">Electronics</option>
+                                <option value="fragrances">Fragrances</option>
+                                <option value="jewelry">Jewelry</option>
+                                <option value="other">Other</option>
+                            </select>
+                        </div>
+                        
+                        <button type="submit" class="btn" id="submit-product-btn">Add Product</button>
+                        <button type="button" class="btn btn-secondary" id="cancel-edit-btn" style="display: none;">Cancel Edit</button>
+                    </form>
+                </div>
+
+                <!-- Products List -->
+                <div class="admin-section">
+                    <h2>Manage Products</h2>
+                    <div class="products-list" id="products-list">
+                        <p>No products yet. Add your first product above.</p>
+                    </div>
+                     <p><a href="../index.html">← Back to Home</a></p>
+                </div>
+            </main>
+        </div>
+    </div>
+
+    <script src="admin.js"></script>
+</body>
+</html>

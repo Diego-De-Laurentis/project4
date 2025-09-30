@@ -1,0 +1,83 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>My Account - Alali Concepts</title>
+    <link rel="stylesheet" href="auth.css">
+</head>
+<body>
+    <div class="auth-container">
+        <div class="user-dashboard">
+            <header class="user-header">
+                <div class="user-nav">
+                    <h1>My Account</h1>
+                    <div class="user-actions">
+                        <a href="../index.html" class="btn btn-secondary">Back to Shop</a>
+                        <button id="logout-btn" class="btn">Logout</button>
+                    </div>
+                </div>
+            </header>
+
+            <main class="user-main">
+                <!-- Profile Section -->
+                <div class="user-section">
+                    <h2>Profile Information</h2>
+                    <div class="profile-info">
+                        <div class="info-item">
+                            <label>Name:</label>
+                            <span id="user-fullname">Loading...</span>
+                        </div>
+                        <div class="info-item">
+                            <label>Email:</label>
+                            <span id="user-email">Loading...</span>
+                        </div>
+                        <div class="info-item">
+                            <label>Member Since:</label>
+                            <span id="user-join-date">Loading...</span>
+                        </div>
+                        <div class="info-item">
+                            <label>Account Type:</label>
+                            <span id="user-role">Loading...</span>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Order History -->
+                <div class="user-section">
+                    <h2>Order History</h2>
+                    <div id="order-history">
+                        <p class="no-orders">You haven't placed any orders yet.</p>
+                    </div>
+                </div>
+
+                <!-- Admin Link (if user is admin) -->
+                <div class="user-section" id="admin-section" style="display: none;">
+                    <h2>Admin Access</h2>
+                    <p>You have administrator privileges.</p>
+                    <a href="../admin/admin.html" class="btn btn-primary">Go to Admin Panel</a>
+                </div>
+
+                <!-- Cart Summary -->
+                <div class="user-section">
+                    <h2>Current Cart</h2>
+                    <div id="cart-summary">
+                        <p class="no-items">Your cart is empty</p>
+                    </div>
+                </div>
+            </main>
+        </div>
+    </div>
+
+    <script src="auth.js"></script>
+    <script>
+
+document.addEventListener('DOMContentLoaded', () => {
+  if (window.authSystem && typeof window.authSystem.updateUserPage === 'function') {
+    window.authSystem.updateUserPage();
+  }
+});
+
+</script>
+</body>
+</html>
