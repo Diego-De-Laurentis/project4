@@ -1,5 +1,15 @@
 // Authentication System
 class AuthSystem {
+    // 🧰 Hilfsfunktion: Cart-Items normalisieren
+    normalizeCartItems(items) {
+        return (items || []).map(it => {
+            if (typeof it.quantity !== 'number' || it.quantity < 1) it.quantity = 1;
+            if (typeof it.unitPrice !== 'number') it.unitPrice = (typeof it.price === 'number' ? it.price : 0);
+            it.price = it.unitPrice * it.quantity;
+            return it;
+        });
+    }
+
     constructor() {
         this.currentUser = null;
         this.init();
@@ -10,7 +20,7 @@ class AuthSystem {
         this.attachEventListeners();
     }
 
-    // Load current user from localStorage
+    // 📥 Aktuellen Benutzer laden
     loadCurrentUser() {
         const userData = localStorage.getItem('currentUser');
         if (userData) {
@@ -19,23 +29,21 @@ class AuthSystem {
         }
     }
 
-    // Save current user to localStorage
+    // 💾 Benutzer speichern
     saveCurrentUser(user) {
         this.currentUser = user;
         localStorage.setItem('currentUser', JSON.stringify(user));
         this.updateUI();
     }
 
-    // Register new user
+    // 📝 Benutzer registrieren
     register(userData) {
         const users = this.getUsers();
-        
-        // Check if email already exists
+
         if (users.find(user => user.email === userData.email)) {
             throw new Error('Email already registered');
         }
 
-        // Validate password match
         if (userData.password !== userData.confirmPassword) {
             throw new Error('Passwords do not match');
         }
@@ -45,7 +53,7 @@ class AuthSystem {
             firstname: userData.firstname,
             lastname: userData.lastname,
             email: userData.email,
-            password: userData.password, // In real app, hash this!
+            password: userData.password, // ⚠️ In echten Projekten: hashen!
             role: 'user',
             joinDate: new Date().toISOString(),
             orders: []
@@ -53,75 +61,64 @@ class AuthSystem {
 
         users.push(newUser);
         localStorage.setItem('users', JSON.stringify(users));
-        
-        // Auto-login after registration
         this.saveCurrentUser(newUser);
         return newUser;
     }
 
-    // Login user
+    // 🔑 Login
     login(email, password) {
         const users = this.getUsers();
         const user = users.find(u => u.email === email && u.password === password);
-        
-        if (!user) {
-            throw new Error('Invalid email or password');
-        }
+
+        if (!user) throw new Error('Invalid email or password');
 
         this.saveCurrentUser(user);
         return user;
     }
 
-    // Logout user
+    // 🚪 Logout
     logout() {
         this.currentUser = null;
         localStorage.removeItem('currentUser');
         this.updateUI();
     }
 
-    // Get all users from localStorage
+    // 📚 Alle Benutzer laden
     getUsers() {
         return JSON.parse(localStorage.getItem('users')) || [];
     }
 
-    // Check if user is logged in
+    // 🟢 Ist eingeloggt?
     isLoggedIn() {
         return this.currentUser !== null;
     }
 
-    // Check if user is admin
+    // 👤 Ist Admin?
     isAdmin() {
         return this.currentUser && this.currentUser.role === 'admin';
     }
 
-    // Update UI based on authentication state
+    // 🔄 UI aktualisieren
     updateUI() {
-        // Update navigation in main site
         this.updateNavigation();
-        
-        // Update user page if we're on it
         if (window.location.pathname.includes('user.html')) {
             this.updateUserPage();
         }
     }
 
-    // Update navigation in main site
+    // 🔁 Navigation aktualisieren
     updateNavigation() {
         const nav = document.querySelector('nav ul');
         if (!nav) return;
 
-        // Remove existing auth links
-        const existingAuthLinks = nav.querySelectorAll('.auth-link, .admin-link');
-        existingAuthLinks.forEach(link => link.remove());
+        nav.querySelectorAll('.auth-link, .admin-link').forEach(link => link.remove());
 
         if (this.isLoggedIn()) {
-            // User is logged in - show user link and logout
             const userLink = document.createElement('li');
             userLink.className = 'auth-link';
             userLink.innerHTML = `<a href="auth/user.html">My Account</a>`;
             nav.appendChild(userLink);
 
-            // Add admin link if user is admin
             if (this.isAdmin()) {
                 const adminLink = document.createElement('li');
                 adminLink.className = 'admin-link';
@@ -129,7 +126,6 @@ class AuthSystem {
                 nav.appendChild(adminLink);
             }
         } else {
-            // User is not logged in - show login/register links
             const loginLink = document.createElement('li');
             loginLink.className = 'auth-link';
             loginLink.innerHTML = `<a href="auth/login.html">Login</a>`;
@@ -137,49 +133,48 @@ class AuthSystem {
         }
     }
 
-    // Update user page content
+    // 👤 Benutzerseite aktualisieren
     updateUserPage() {
         if (!this.currentUser) {
             window.location.href = 'login.html';
             return;
         }
 
-        // Update profile information
-        document.getElementById('user-fullname').textContent = 
+        document.getElementById('user-fullname').textContent =
             `${this.currentUser.firstname} ${this.currentUser.lastname}`;
         document.getElementById('user-email').textContent = this.currentUser.email;
-        document.getElementById('user-join-date').textContent = 
+        document.getElementById('user-join-date').textContent =
             new Date(this.currentUser.joinDate).toLocaleDateString();
-        document.getElementById('user-role').textContent = 
+        document.getElementById('user-role').textContent =
             this.currentUser.role.charAt(0).toUpperCase() + this.currentUser.role.slice(1);
 
-        // Show admin section if user is admin
         if (this.isAdmin()) {
             document.getElementById('admin-section').style.display = 'block';
         }
 
-        // Update cart summary
         this.updateCartSummary();
+        this.updateOrderHistory();
     }
 
-    // Update cart summary on user page
+    // 🛒 Cart-Zusammenfassung aktualisieren
     updateCartSummary() {
         const cart = JSON.parse(localStorage.getItem('cart')) || [];
         const cartSummary = document.getElementById('cart-summary');
-        
+
         if (cart.length === 0) {
             cartSummary.innerHTML = '<p class="no-items">Your cart is empty</p>';
             return;
         }
 
-        const total = cart.reduce((sum, item) => sum + item.price, 0);
+        const normalized = this.normalizeCartItems(cart);
+        const total = normalized.reduce((sum, item) => sum + item.price, 0);
         cartSummary.innerHTML = `
             <div class="cart-items">
-                ${cart.map(item => `
+                ${normalized.map(item => `
                     <div class="cart-item">
                         <div class="cart-info">
                             <h3>${item.name}</h3>
-                            <p>$${item.price.toFixed(2)}</p>
+                            <p>$${item.unitPrice.toFixed(2)} × ${item.quantity} = $${item.price.toFixed(2)}</p>
                         </div>
                     </div>
                 `).join('')}
@@ -190,9 +185,51 @@ class AuthSystem {
         `;
     }
 
-    // Attach event listeners
+    // 📜 Bestellhistorie anzeigen ✅
+    updateOrderHistory() {
+        const ordersContainer = document.getElementById('order-history');
+        if (!ordersContainer) return;
+
+        const users = this.getUsers();
+        const currentUser = this.currentUser;
+        const user = users.find(u => u.id === currentUser.id);
+
+        if (!user || !Array.isArray(user.orders) || user.orders.length === 0) {
+            ordersContainer.innerHTML = `<p class="no-orders">You haven't placed any orders yet.</p>`;
+            return;
+        }
+
+        const sortedOrders = [...user.orders].sort((a, b) => new Date(b.orderDate) - new Date(a.orderDate));
+
+        ordersContainer.innerHTML = sortedOrders.map(order => `
+            <div class="order-card">
+                <div class="order-header">
+                    <h3>Order #${order.orderId}</h3>
+                    <p><strong>Date:</strong> ${order.orderDate}</p>
+                    <p><strong>Status:</strong> ${order.status || 'Processing'}</p>
+                    <p><strong>Estimated Delivery:</strong> ${order.estimatedDelivery}</p>
+                </div>
+                <div class="order-items">
+                    ${order.items.map(item => `
+                        <div class="order-item">
+                            <p><strong>${item.name}</strong></p>
+                            <p>${item.quantity} × $${item.unitPrice.toFixed(2)}</p>
+                            <p><strong>Total:</strong> $${(item.quantity * item.unitPrice).toFixed(2)}</p>
+                        </div>
+                    `).join('')}
+                </div>
+                <div class="order-summary" style="margin-top: 1rem;">
+                    <p><strong>Subtotal:</strong> $${order.subtotal.toFixed(2)}</p>
+                    <p><strong>Shipping:</strong> $${order.shipping.toFixed(2)}</p>
+                    <p><strong>Tax:</strong> $${order.tax.toFixed(2)}</p>
+                    <p><strong>Total:</strong> $${order.total.toFixed(2)}</p>
+                </div>
+            </div>
+        `).join('');
+    }
+
+    // 🔗 Event-Listener
     attachEventListeners() {
-        // Login form
         const loginForm = document.getElementById('login-form');
         if (loginForm) {
             loginForm.addEventListener('submit', (e) => {
@@ -201,7 +238,6 @@ class AuthSystem {
             });
         }
 
-        // Register form
         const registerForm = document.getElementById('register-form');
         if (registerForm) {
             registerForm.addEventListener('submit', (e) => {
@@ -210,7 +246,6 @@ class AuthSystem {
             });
         }
 
-        // Logout button
         const logoutBtn = document.getElementById('logout-btn');
         if (logoutBtn) {
             logoutBtn.addEventListener('click', () => {
@@ -219,26 +254,21 @@ class AuthSystem {
         }
     }
 
-    // Handle login
+    // 🔐 Login
     handleLogin() {
         try {
             const email = document.getElementById('login-email').value;
             const password = document.getElementById('login-password').value;
-            
+
             this.login(email, password);
             this.showNotification('Login successful!');
-            
-            // Redirect to main page after short delay
-            setTimeout(() => {
-                window.location.href = '../index.html';
-            }, 1000);
-            
+            setTimeout(() => window.location.href = '../index.html', 1000);
         } catch (error) {
             this.showNotification(error.message, 'error');
         }
     }
 
-    // Handle register
+    // 📝 Registrierung
     handleRegister() {
         try {
             const formData = new FormData(document.getElementById('register-form'));
@@ -252,31 +282,21 @@ class AuthSystem {
 
             this.register(userData);
             this.showNotification('Account created successfully!');
-            
-            // Redirect to main page after short delay
-            setTimeout(() => {
-                window.location.href = '../index.html';
-            }, 1000);
-            
+            setTimeout(() => window.location.href = '../index.html', 1000);
         } catch (error) {
             this.showNotification(error.message, 'error');
         }
     }
 
-    // Handle logout
+    // 🚪 Logout
     handleLogout() {
         this.logout();
         this.showNotification('Logged out successfully');
-        
-        // Redirect to login page after short delay
-        setTimeout(() => {
-            window.location.href = 'login.html';
-        }, 1000);
+        setTimeout(() => window.location.href = 'login.html', 1000);
     }
 
-    // Show notification
+    // 📣 Toast-Nachricht
     showNotification(message, type = 'success') {
-        // Remove existing notification
         const existing = document.querySelector('.auth-notification');
         if (existing) existing.remove();
 
@@ -285,12 +305,10 @@ class AuthSystem {
         notification.textContent = message;
         document.body.appendChild(notification);
 
-        setTimeout(() => {
-            notification.remove();
-        }, 3000);
+        setTimeout(() => notification.remove(), 3000);
     }
 
-    // Check if user can add to cart (must be logged in)
+    // 🛒 Check ob Hinzufügen erlaubt ist
     canAddToCart() {
         if (!this.isLoggedIn()) {
             this.showNotification('Please log in to add items to cart', 'error');
@@ -303,16 +321,15 @@ class AuthSystem {
     }
 }
 
-// Initialize auth system
+// 🔥 Auth-System initialisieren
 const auth = new AuthSystem();
 
-// Create demo accounts on first load
+// 🧪 Demo-Accounts anlegen
 function initializeDemoAccounts() {
     const users = auth.getUsers();
-    
-    // Only create demo accounts if they don't exist
+
     if (!users.find(u => u.email === 'user@alali.com')) {
-        const demoUser = {
+        users.push({
             id: '1',
             firstname: 'Demo',
             lastname: 'User',
@@ -321,12 +338,11 @@ function initializeDemoAccounts() {
             role: 'user',
             joinDate: new Date().toISOString(),
             orders: []
-        };
-        users.push(demoUser);
+        });
     }
-    
+
     if (!users.find(u => u.email === 'admin@alali.com')) {
-        const demoAdmin = {
+        users.push({
             id: '2',
             firstname: 'Admin',
             lastname: 'User',
@@ -335,22 +351,20 @@ function initializeDemoAccounts() {
             role: 'admin',
             joinDate: new Date().toISOString(),
             orders: []
-        };
-        users.push(demoAdmin);
+        });
     }
-    
+
     localStorage.setItem('users', JSON.stringify(users));
 }
 
-// Initialize demo accounts when auth system loads
-document.addEventListener('DOMContentLoaded', function() {
+// 📦 Demo-Accounts beim Laden erstellen
+document.addEventListener('DOMContentLoaded', function () {
     initializeDemoAccounts();
-    
-    // Update UI if we're on the main site
+
     if (!window.location.pathname.includes('/auth/') && !window.location.pathname.includes('/admin/')) {
         auth.updateUI();
     }
 });
 
-// Make auth system globally available
+// 🌐 Global verfügbar machen
 window.authSystem = auth;

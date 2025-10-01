@@ -239,22 +239,49 @@ function handleContactForm() {
 }
 
 // Cart functionality - UPDATED WITH AUTH CHECK
-let cart = JSON.parse(localStorage.getItem('cart')) || [];
+let cart = normalizeCartItems(JSON.parse(localStorage.getItem('cart')) || []);
+
+// --- CART HELPERS (added) ---
+function normalizeCartItems(items) {
+    return (items || []).map(it => {
+        if (typeof it.quantity !== 'number' || it.quantity < 1) it.quantity = 1;
+        if (typeof it.unitPrice !== 'number') it.unitPrice = (typeof it.price === 'number' ? it.price : 0);
+        // keep legacy price for compatibility but prefer unitPrice
+        it.price = it.unitPrice * it.quantity;
+        return it;
+    });
+}
+
 
 function addToCart(productName, price) {
     // Check if user is logged in using the auth system
     if (window.authSystem && !window.authSystem.canAddToCart()) {
         return; // Stop here if user is not logged in
     }
+    // Normalize cart in case of legacy entries
+    cart = normalizeCartItems(cart);
     
-    const product = {
-        name: productName,
-        price: price,
-        id: Date.now(),
-        addedAt: new Date().toISOString()
-    };
-    
-    cart.push(product);
+    // Try to find existing item by name (case-insensitive)
+    const key = productName.trim().toLowerCase();
+    const idx = cart.findIndex(it => (it.name || '').trim().toLowerCase() === key);
+    if (idx !== -1) {
+        // increment quantity and recompute line price
+        cart[idx].quantity += 1;
+        cart[idx].unitPrice = price; // keep latest price as unit price
+        cart[idx].price = cart[idx].unitPrice * cart[idx].quantity;
+        cart[idx].updatedAt = new Date().toISOString();
+    } else {
+        const product = {
+            id: Date.now(),
+            name: productName,
+            unitPrice: price,
+            quantity: 1,
+            price: price,
+            addedAt: new Date().toISOString()
+        };
+        cart.push(product);
+    }
+
     localStorage.setItem('cart', JSON.stringify(cart));
     
     // Show notification
@@ -286,11 +313,17 @@ function showNotification(message) {
 }
 
 function updateCartCount() {
-    const cartCount = document.getElementById('cart-count');
-    if (cartCount) {
-        cartCount.textContent = cart.length;
+    try {
+        const items = normalizeCartItems(JSON.parse(localStorage.getItem('cart')) || []);
+        const totalQty = items.reduce((sum, it) => sum + (it.quantity || 1), 0);
+        const countEl = document.querySelector('.cart-count');
+        if (countEl) countEl.textContent = totalQty;
+    } catch(e) {
+        const countEl = document.querySelector('.cart-count');
+        if (countEl) countEl.textContent = '0';
     }
 }
+
 
 // Initialize cart count on page load
 document.addEventListener('DOMContentLoaded', function() {

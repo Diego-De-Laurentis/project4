@@ -70,5 +70,14 @@
     </div>
 
     <script src="auth.js"></script>
+    <script>
+
+document.addEventListener('DOMContentLoaded', () => {
+  if (window.authSystem && typeof window.authSystem.updateUserPage === 'function') {
+    window.authSystem.updateUserPage();
+  }
+});
+
+</script>
 </body>
 </html>
