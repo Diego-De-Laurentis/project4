@@ -281,6 +281,73 @@ function trackPageView() {
     console.log(`Page view tracked: ${pageViews}`);
 }
 
+// ========== PRODUCT LOADING FROM BACKEND ==========
+
+const API_BASE = ''; // Same-origin, adjust if backend runs elsewhere
+
+async function loadProductsToShop() {
+    const shopGrid = document.querySelector('.shop-grid');
+    if (!shopGrid) return;
+
+    shopGrid.innerHTML = `
+      <div class="product-card"><div class="skeleton-thumb"></div><h3 class="skeleton-text">Loading…</h3></div>
+      <div class="product-card"><div class="skeleton-thumb"></div><h3 class="skeleton-text">Loading…</h3></div>
+      <div class="product-card"><div class="skeleton-thumb"></div><h3 class="skeleton-text">Loading…</h3></div>
+    `;
+
+    try {
+        const res = await fetch(`${API_BASE}/api/products`, { headers: { 'Accept': 'application/json' } });
+        if (!res.ok) throw new Error(`Failed to fetch products: ${res.status}`);
+        const products = await res.json();
+
+        if (!Array.isArray(products) || products.length === 0) {
+            shopGrid.innerHTML = `<p class="no-products">No products available. Please check back later.</p>`;
+            return;
+        }
+
+        shopGrid.innerHTML = products.map(p => {
+            const img = p.image_url || 'https://via.placeholder.com/300x200/333/FFFFFF?text=No+Image';
+            const name = p.name ?? 'Unnamed Product';
+            const price = (typeof p.price === 'number' ? p.price : parseFloat(p.price || 0));
+            const desc = p.description ? `<p class="product-description">${p.description}</p>` : '';
+
+            return `
+              <div class="product-card" data-id="${p._id}">
+                <img src="${img}" alt="${name}" onerror="this.src='https://via.placeholder.com/300x200/333/FFFFFF?text=Product+Image'">
+                <h3>${name}</h3>
+                <p class="price">$${price.toFixed(2)}</p>
+                ${desc}
+                <button class="add-to-cart" data-name="${name}" data-price="${price}">Add to Cart</button>
+              </div>
+            `;
+        }).join('');
+
+        document.querySelectorAll('.add-to-cart').forEach(btn => {
+            btn.addEventListener('click', () => {
+                const name = btn.getAttribute('data-name');
+                const price = parseFloat(btn.getAttribute('data-price'));
+                addToCart(name, price);
+            });
+        });
+
+    } catch (err) {
+        console.error('Error loading products:', err);
+        shopGrid.innerHTML = `<p class="no-products">Error loading products. Please try again later.</p>`;
+    }
+}
+
+// Ensure load runs on shop.html
+document.addEventListener('DOMContentLoaded', () => {
+    const onShopPage =
+        location.pathname.endsWith('/content/shop.html') ||
+        location.pathname.endsWith('shop.html') ||
+        document.querySelector('.shop-grid');
+
+    if (onShopPage) {
+        loadProductsToShop();
+    }
+});
+
 // ========== UPDATED AUTHENTICATION SYSTEM ==========
 
 // AUTHENTICATION SYSTEM INTEGRATION - UPDATED WITH COOKIE SUPPORT
@@ -576,65 +643,6 @@ function setActiveNavLink(activePage) {
             link.classList.add('active');
         }
     });
-}
-
-// Load products from localStorage and update shop
-function loadProductsToShop() {
-    const products = JSON.parse(localStorage.getItem('alaliProducts')) || [];
-    const shopGrid = document.querySelector('.shop-grid');
-    
-    if (shopGrid && products.length > 0) {
-        shopGrid.innerHTML = products.map(product => `
-            <div class="product-card">
-                <img src="${product.image}" alt="${product.name}" 
-                     onerror="this.src='https://via.placeholder.com/300x200/333/FFFFFF?text=Product+Image'">
-                <h3>${product.name}</h3>
-                <p class="price">$${parseFloat(product.price).toFixed(2)}</p>
-                ${product.description ? `<p class="product-description">${product.description}</p>` : ''}
-                <button class="add-to-cart">Add to Cart</button>
-            </div>
-        `).join('');
-    } else if (shopGrid && products.length === 0) {
-        // Show default products if no admin products exist
-        shopGrid.innerHTML = `
-            <div class="product-card">
-                <img src="https://via.placeholder.com/300x200/333/FFFFFF?text=LUXURY+WATCH" alt="Luxury Watch">
-                <h3>Premium Watch</h3>
-                <p class="price">$299.99</p>
-                <button class="add-to-cart">Add to Cart</button>
-            </div>
-            <div class="product-card">
-                <img src="https://via.placeholder.com/300x200/555/FFFFFF?text=DESIGNER+BAG" alt="Designer Bag">
-                <h3>Designer Handbag</h3>
-                <p class="price">$399.99</p>
-                <button class="add-to-cart">Add to Cart</button>
-            </div>
-            <div class="product-card">
-                <img src="https://via.placeholder.com/300x200/777/FFFFFF?text=SMART+DEVICE" alt="Smart Device">
-                <h3>Smart Device</h3>
-                <p class="price">$199.99</p>
-                <button class="add-to-cart">Add to Cart</button>
-            </div>
-            <div class="product-card">
-                <img src="https://via.placeholder.com/300x200/333/FFFFFF?text=PREMIUM+PERFUME" alt="Premium Perfume">
-                <h3>Luxury Fragrance</h3>
-                <p class="price">$149.99</p>
-                <button class="add-to-cart">Add to Cart</button>
-            </div>
-            <div class="product-card">
-                <img src="https://via.placeholder.com/300x200/555/FFFFFF?text=JEWELRY+SET" alt="Jewelry Set">
-                <h3>Elegant Jewelry Set</h3>
-                <p class="price">$499.99</p>
-                <button class="add-to-cart">Add to Cart</button>
-            </div>
-            <div class="product-card">
-                <img src="https://via.placeholder.com/300x200/777/FFFFFF?text=TECH+GADGET" alt="Tech Gadget">
-                <h3>Innovative Tech Gadget</h3>
-                <p class="price">$249.99</p>
-                <button class="add-to-cart">Add to Cart</button>
-            </div>
-        `;
-    }
 }
 
 // Initialize navigation event listeners - FIXED VERSION
