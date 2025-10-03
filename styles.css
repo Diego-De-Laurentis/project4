@@ -82,14 +82,77 @@ nav ul li a:hover {
 }
 
 /* Hero Section */
+
+/* ===== Hero Section Enhanced Design ===== */
 .hero {
-    background: linear-gradient(rgba(0, 0, 0, 0.7), rgba(0, 0, 0, 0.7)), #1a1a1a;
-    height: 60vh;
+    background: linear-gradient(rgba(0, 0, 0, 0.6), rgba(0, 0, 0, 0.6)),
+                url("img/muhannad\ Gare.jpg") center/cover no-repeat;
+    height: 100vh;
     display: flex;
     align-items: center;
+    justify-content: center;
     color: white;
     text-align: center;
+    position: relative;
+    overflow: hidden;
 }
+
+.hero-content {
+    animation: fadeInUp 1.5s ease-out forwards;
+    opacity: 0;
+}
+
+@keyframes fadeInUp {
+    from {
+        opacity: 0;
+        transform: translateY(50px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+/* Slow background zoom animation */
+.hero::before {
+    content: "";
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: inherit;
+    background-size: cover;
+    background-attachment: fixed;
+    animation: slowZoom 25s ease-in-out infinite alternate;
+    z-index: -1;
+}
+
+@keyframes slowZoom {
+    from {
+        transform: scale(1);
+    }
+    to {
+        transform: scale(1.05);
+    }
+}
+
+/* Pulse animation for call-to-action button */
+.hero .btn {
+    animation: pulse 2s infinite;
+}
+
+@keyframes pulse {
+    0%, 100% {
+        transform: scale(1);
+        box-shadow: 0 0 0 rgba(255, 255, 255, 0.7);
+    }
+    50% {
+        transform: scale(1.05);
+        box-shadow: 0 0 20px rgba(255, 255, 255, 0.4);
+    }
+}
+
 
 .hero-content {
     max-width: 800px;
@@ -804,4 +867,73 @@ nav a.active {
     .contact-section {
         padding: 3rem 0;
     }
+}
+
+/* === CEO Section === */
+.ceo-section {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 2rem;
+    background: linear-gradient(135deg, #ffffff, #f9f9f9);
+    padding: 3rem 2rem;
+    margin: 4rem 0;
+    border-radius: 12px;
+    box-shadow: 0 5px 20px rgba(0,0,0,0.08);
+    animation: fadeIn 1.2s ease-in-out forwards;
+}
+
+.ceo-photo {
+    width: 220px;
+    height: 220px;
+    border-radius: 50%;
+    object-fit: cover;
+    box-shadow: 0 8px 20px rgba(0,0,0,0.15);
+    transform: scale(1);
+    transition: transform 0.3s ease;
+}
+
+.ceo-photo:hover {
+    transform: scale(1.05);
+}
+
+.ceo-info {
+    max-width: 600px;
+}
+
+.ceo-info h3 {
+    font-size: 2rem;
+    margin-bottom: 1rem;
+    color: #000;
+}
+
+.ceo-info p {
+    font-size: 1.1rem;
+    line-height: 1.6;
+    color: #555;
+}
+
+/* Contact Section Improvements */
+.contact-section {
+    background: linear-gradient(180deg, #f8f9fa, #ffffff);
+    padding: 5rem 2rem;
+}
+
+.contact-item {
+    transition: transform 0.3s ease, box-shadow 0.3s ease;
+}
+
+.contact-item:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 6px 18px rgba(0,0,0,0.12);
+}
+
+.map-section iframe {
+    border-radius: 8px;
+    box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+}
+
+@keyframes fadeIn {
+    from { opacity: 0; transform: translateY(50px); }
+    to { opacity: 1; transform: translateY(0); }
 }

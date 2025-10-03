@@ -42,7 +42,7 @@ class CartPage {
         localStorage.setItem('cart', JSON.stringify(this.cart));
     }
 
-    // 📦 Warenkorb laden & rendern
+    // load cart
     loadCartItems() {
         const cartItemsContainer = document.getElementById('cart-items');
         const emptyCart = document.getElementById('empty-cart');
@@ -58,7 +58,7 @@ class CartPage {
         emptyCart.style.display = 'none';
         itemsCount.textContent = this.cart.reduce((sum, it) => sum + it.quantity, 0);
 
-        // 🧪 Debug: Zeige Items im Console (hilfreich beim Testen)
+        // Debug: show items in the console
         console.log('Rendering cart items:', this.cart);
 
         cartItemsContainer.innerHTML = this.cart.map((item, index) => `
