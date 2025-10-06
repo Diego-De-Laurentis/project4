@@ -23,7 +23,14 @@
   "devDependencies": {
     "nodemon": "^3.0.1"
   },
-  "keywords": ["ecommerce", "shopping", "website"],
+  "keywords": [
+    "ecommerce",
+    "shopping",
+    "website"
+  ],
   "author": "De Laurentis Diego",
-  "license": "MIT"
+  "license": "MIT",
+  "engines": {
+    "node": "18.x"
+  }
 }

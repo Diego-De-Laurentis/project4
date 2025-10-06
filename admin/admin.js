@@ -1,3 +1,5 @@
+// API base helper injected for external backend support
+const apiPath = (p) => (window.API_BASE || '') + p;
 // Admin Panel JavaScript - Complete MongoDB Version
 document.addEventListener('DOMContentLoaded', function() {
     console.log('Admin panel loaded');
@@ -93,7 +95,7 @@ document.addEventListener('DOMContentLoaded', function() {
     // ========== PRODUCT MANAGEMENT ==========
     async function loadProducts() {
         try {
-            const response = await fetch('/api/admin/products');
+            const response = await fetch(apiPath('/api/admin/products');
             const data = await response.json();
             
             const productsList = document.getElementById('products-list');
@@ -153,7 +155,7 @@ document.addEventListener('DOMContentLoaded', function() {
         }
         
         try {
-            const response = await fetch('/api/admin/products', {
+            const response = await fetch(apiPath('/api/admin/products', {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json'
@@ -195,7 +197,7 @@ document.addEventListener('DOMContentLoaded', function() {
         }
         
         try {
-            const response = await fetch(`/api/admin/products/${productId}`, {
+            const response = await fetch(apiPath(`/api/admin/products/${productId}`, {
                 method: 'PUT',
                 headers: {
                     'Content-Type': 'application/json'
@@ -223,7 +225,7 @@ document.addEventListener('DOMContentLoaded', function() {
         }
         
         try {
-            const response = await fetch(`/api/admin/products/${productId}`, {
+            const response = await fetch(apiPath(`/api/admin/products/${productId}`, {
                 method: 'DELETE'
             });
             
@@ -242,7 +244,7 @@ document.addEventListener('DOMContentLoaded', function() {
     
     async function editProduct(productId) {
         try {
-            const response = await fetch(`/api/admin/products/${productId}`);
+            const response = await fetch(apiPath(`/api/admin/products/${productId}`);
             const data = await response.json();
             
             if (data.success && data.product) {
@@ -275,7 +277,7 @@ document.addEventListener('DOMContentLoaded', function() {
     // ========== USER MANAGEMENT ==========
     async function loadUsers() {
         try {
-            const response = await fetch('/api/admin/users');
+            const response = await fetch(apiPath('/api/admin/users');
             const data = await response.json();
             
             const usersList = document.getElementById('users-list');
@@ -332,7 +334,7 @@ document.addEventListener('DOMContentLoaded', function() {
     
     async function editUser(userId) {
         try {
-            const response = await fetch(`/api/admin/users/${userId}`);
+            const response = await fetch(apiPath(`/api/admin/users/${userId}`);
             const data = await response.json();
             
             if (data.success && data.user) {
@@ -354,7 +356,7 @@ document.addEventListener('DOMContentLoaded', function() {
                                : 'active'
                     };
                     
-                    const updateResponse = await fetch(`/api/admin/users/${userId}`, {
+                    const updateResponse = await fetch(apiPath(`/api/admin/users/${userId}`, {
                         method: 'PUT',
                         headers: {
                             'Content-Type': 'application/json'
@@ -384,7 +386,7 @@ document.addEventListener('DOMContentLoaded', function() {
         }
         
         try {
-            const response = await fetch(`/api/admin/users/${userId}`, {
+            const response = await fetch(apiPath(`/api/admin/users/${userId}`, {
                 method: 'DELETE'
             });
             
@@ -404,7 +406,7 @@ document.addEventListener('DOMContentLoaded', function() {
     // ========== ORDER MANAGEMENT ==========
     async function loadOrders() {
         try {
-            const response = await fetch('/api/admin/orders');
+            const response = await fetch(apiPath('/api/admin/orders');
             const data = await response.json();
             
             const ordersList = document.getElementById('orders-list');
@@ -496,7 +498,7 @@ document.addEventListener('DOMContentLoaded', function() {
     
     async function updateOrderStatus(orderId, newStatus) {
         try {
-            const response = await fetch(`/api/admin/orders/${orderId}/status`, {
+            const response = await fetch(apiPath(`/api/admin/orders/${orderId}/status`, {
                 method: 'PUT',
                 headers: {
                     'Content-Type': 'application/json'
@@ -520,7 +522,7 @@ document.addEventListener('DOMContentLoaded', function() {
     
     async function viewOrderDetails(orderId) {
         try {
-            const response = await fetch(`/api/admin/orders/${orderId}`);
+            const response = await fetch(apiPath(`/api/admin/orders/${orderId}`);
             const data = await response.json();
             
             if (data.success) {
@@ -547,7 +549,7 @@ document.addEventListener('DOMContentLoaded', function() {
         }
         
         try {
-            const response = await fetch(`/api/admin/orders/${orderId}`, {
+            const response = await fetch(apiPath(`/api/admin/orders/${orderId}`, {
                 method: 'DELETE'
             });
             
@@ -568,7 +570,7 @@ document.addEventListener('DOMContentLoaded', function() {
     // ========== STATISTICS ==========
     async function loadStatistics() {
         try {
-            const response = await fetch('/api/admin/statistics');
+            const response = await fetch(apiPath('/api/admin/statistics');
             const data = await response.json();
             
             if (data.success) {
