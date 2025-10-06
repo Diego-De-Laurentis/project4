@@ -1,3 +1,23 @@
+
+// --- API base patch (adds Render base URL when running on LWS) ---
+(function(){
+  try {
+    const ORIG_FETCH = window.fetch.bind(window);
+    const API_BASE = (window.API_BASE || '').replace(/\/$/,'');
+    window.fetch = function(input, init){
+      try {
+        let url = (typeof input === 'string') ? input : input.url;
+        if (url && url.startsWith('/api/')) {
+          const newUrl = API_BASE ? (API_BASE + url) : url;
+          if (typeof input === 'string') return ORIG_FETCH(newUrl, init);
+          return ORIG_FETCH(new Request(newUrl, input), init);
+        }
+      } catch(e) { /* ignore */ }
+      return ORIG_FETCH(input, init);
+    };
+  } catch(e) { /* ignore */ }
+})();
+// --- end API base patch ---
 // ========== COOKIE MANAGEMENT FUNCTIONS ==========
 
 // Set a cookie
