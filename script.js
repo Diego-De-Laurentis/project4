@@ -322,13 +322,7 @@ async function loadProductsToShop() {
             `;
         }).join('');
 
-        document.querySelectorAll('.add-to-cart').forEach(btn => {
-            btn.addEventListener('click', () => {
-                const name = btn.getAttribute('data-name');
-                const price = parseFloat(btn.getAttribute('data-price'));
-                addToCart(name, price);
-            });
-        });
+        // Removed duplicate add-to-cart event listener (global handler handles this)
 
     } catch (err) {
         console.error('Error loading products:', err);
@@ -462,6 +456,14 @@ function saveCartToCookies() {
 }
 
 // Load cart from cookies
+// --- CART COOKIE CLEANUP ---
+function clearCartCookiesIfEmpty() {
+    const cart = JSON.parse(localStorage.getItem('cart')) || [];
+    if (cart.length === 0) {
+        deleteCookie('user_cart');
+    }
+}
+
 function loadCartFromCookies() {
     if (getCookie('cookies_preferences') === 'true') {
         const cartCookie = getCookie('user_cart');
@@ -489,6 +491,17 @@ function loadCartFromCookies() {
 
 // Enhanced addToCart with cookie support
 function addToCart(productName, price) {
+    // Dedup guard: prevent accidental double-trigger within 200ms for the same item
+    try {
+        const key = String(productName || '').trim().toLowerCase();
+        const now = Date.now();
+        window.__cartAddGate = window.__cartAddGate || {};
+        if (window.__cartAddGate[key] && (now - window.__cartAddGate[key]) < 200) {
+            return; // drop duplicate
+        }
+        window.__cartAddGate[key] = now;
+    } catch (e) { /* noop */ }
+
     // Check if user is logged in using the auth system
     if (window.authSystem && !window.authSystem.canAddToCart()) {
         return; // Stop here if user is not logged in
@@ -563,6 +576,8 @@ document.addEventListener('DOMContentLoaded', async function() {
     
     // Load all page content
     await loadHTML('shop-content', 'content/shop.html');
+    // Ensure products load after shop.html is inserted
+    loadProductsToShop();
     await loadHTML('about-content', 'content/about.html');
     await loadHTML('contact-content', 'content/contact.html');
     
@@ -647,7 +662,11 @@ function setActiveNavLink(activePage) {
 
 // Initialize navigation event listeners - FIXED VERSION
 function initializeNavigation() {
-    // Add click event listener to the document for navigation
+    
+    // Guard: ensure we don't attach duplicate global click listener
+    if (window.__navHandlerInstalled) { return; }
+    window.__navHandlerInstalled = true;
+// Add click event listener to the document for navigation
     document.addEventListener('click', function(e) {
         // Handle navigation clicks - ONLY for hash links (internal navigation)
         if (e.target.matches('nav a[href^="#"]') || e.target.closest('nav a[href^="#"]')) {
@@ -668,17 +687,22 @@ function initializeNavigation() {
             window.location.hash = target;
         }
         
-        // Handle add to cart buttons (delegated event) - NOW WITH AUTH CHECK
-        if (e.target.classList.contains('add-to-cart')) {
-            const productCard = e.target.closest('.product-card');
-            if (productCard) {
-                const productName = productCard.querySelector('h3').textContent;
-                const price = parseFloat(productCard.querySelector('.price').textContent.replace('$', ''));
-                addToCart(productName, price);
-            }
-        }
+        // Handle add to cart buttons (delegated event) - robust & single-call
+const btn = e.target.closest('.add-to-cart');
+if (btn) {
+    const name = btn.getAttribute('data-name') || btn.closest('.product-card')?.querySelector('h3')?.textContent || 'Unknown Item';
+    const priceAttr = btn.getAttribute('data-price');
+    let price = parseFloat(priceAttr ?? 'NaN');
+    if (isNaN(price)) {
+        const card = btn.closest('.product-card');
+        const priceText = card?.querySelector('.price')?.textContent?.replace('$','') ?? '0';
+        price = parseFloat(priceText) || 0;
+    }
+    addToCart(name, price);
+}
 
-        // Handle contact form submission
+// Handle contact form submission
+
         if (e.target.type === 'submit' && e.target.closest('.contact-form')) {
             e.preventDefault();
             handleContactForm();
