@@ -372,7 +372,9 @@ footer {
 }
 
 .social-icons a {
-    display: inline-block;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
     margin-right: 1rem;
     color: #ddd;
     background: #333;
@@ -380,7 +382,7 @@ footer {
     height: 40px;
     border-radius: 4px;
     text-align: center;
-    line-height: 40px;
+    
     transition: all 0.3s;
 }
 
@@ -1072,6 +1074,18 @@ img, video { max-width: 100%; height: auto; }
 
 @media (max-width: 768px) {
   .hero { 
+    background-position: center 35%;
+  }
+}
+
+.social-icons a svg { display: block; }
+
+
+@media (max-width: 768px) {
+  .hero {
+    height: 80vh;
+    background-repeat: no-repeat;
+    background-size: contain;
     background-position: center 35%;
   }
 }
