@@ -305,7 +305,7 @@ nav ul li a:hover {
 
 .shop-grid {
     display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+    grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
     gap: 2rem;
     margin-top: 3rem;
 }
@@ -735,7 +735,7 @@ footer {
 
 .contact-details {
     display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+    grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
     gap: 2rem;
     margin-top: 3rem;
 }
@@ -830,7 +830,7 @@ footer {
 
 .hours-grid {
     display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+    grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
     gap: 1rem;
 }
 
@@ -1044,4 +1044,20 @@ img, video { max-width: 100%; height: auto; }
     border: 0;
     display: block;
   }
+}
+
+
+/* --- Contact details wider cards & hero centering tweaks --- */
+@media (min-width: 1024px) {
+  .contact-details { grid-template-columns: repeat(auto-fit, minmax(360px, 1fr)); }
+}
+
+.hero {
+  /* shift focus slightly upward so the subject is more centered visually */
+  background-position: center 40%;
+}
+
+/* On very small screens, keep subject centered */
+@media (max-width: 480px) {
+  .hero { background-position: center 45%; }
 }
