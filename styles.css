@@ -1013,3 +1013,35 @@ img, video { max-width: 100%; height: auto; }
     .auth-container { padding: 1rem; }
     .auth-form { max-width: 100%; }
 }
+
+
+/* --- Contact page mobile layout fixes --- */
+@media (max-width: 768px) {
+  .ceo-section {
+    flex-direction: column;
+    text-align: center;
+    align-items: center;
+    padding: 2rem 1rem;
+    gap: 1rem;
+  }
+  .ceo-photo {
+    width: 160px;
+    height: 160px;
+  }
+  .ceo-info { 
+    max-width: 100%; 
+  }
+  .map-section { 
+    padding: 1.25rem; 
+  }
+  .map-placeholder { 
+    padding: 0; 
+    background: transparent; 
+  }
+  .map-placeholder iframe {
+    width: 100%;
+    height: 320px;
+    border: 0;
+    display: block;
+  }
+}
