@@ -937,3 +937,79 @@ nav a.active {
     from { opacity: 0; transform: translateY(50px); }
     to { opacity: 1; transform: translateY(0); }
 }
+
+
+/* --- Responsive helpers --- */
+img, video { max-width: 100%; height: auto; }
+
+/* Hamburger button */
+.menu-toggle {
+    display: none;
+    border: none;
+    background: transparent;
+    cursor: pointer;
+    padding: 0.5rem;
+    margin-left: 1rem;
+}
+
+.menu-toggle .bar {
+    display: block;
+    width: 26px;
+    height: 3px;
+    margin: 5px 0;
+    background: #fff;
+    transition: transform 0.3s ease, opacity 0.3s ease;
+    border-radius: 2px;
+}
+
+/* Mobile nav dropdown */
+@media (max-width: 768px) {
+    .header-content {
+        gap: .5rem;
+    }
+    nav ul {
+        flex-direction: column;
+        gap: 0;
+    }
+    header nav {
+        position: absolute;
+        left: 0;
+        right: 0;
+        top: 100%;
+        background: #000;
+        display: none;
+        padding: .5rem 1rem 1rem;
+        border-bottom: 1px solid rgba(255,255,255,0.15);
+    }
+    header.open nav { display: block; }
+    header nav ul li {
+        margin: .25rem 0;
+    }
+    .menu-toggle { display: inline-block; }
+    /* Keep desktop nav hidden when collapsed */
+    header:not(.open) nav ul { display: flex; }
+}
+
+/* Larger tap targets on mobile */
+@media (max-width: 768px) {
+    nav ul li a { padding: .5rem 0; display: block; }
+    .featured-products { padding: 3rem 0; }
+    .hero .hero-content h1 { font-size: clamp(1.6rem, 6vw, 2.4rem); }
+}
+
+/* Cart page responsive */
+@media (max-width: 768px) {
+    .cart-item {
+        grid-template-columns: 70px 1fr;
+    }
+    .cart-item .item-actions {
+        grid-column: 1 / -1;
+        justify-content: space-between;
+    }
+}
+
+/* Auth forms */
+@media (max-width: 768px) {
+    .auth-container { padding: 1rem; }
+    .auth-form { max-width: 100%; }
+}
