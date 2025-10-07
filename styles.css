@@ -1072,20 +1072,25 @@ img, video { max-width: 100%; height: auto; }
 }
 
 
-@media (max-width: 768px) {
-  .hero { 
-    background-position: center 35%;
-  }
-}
+
 
 .social-icons a svg { display: block; }
 
 
+
+
+.social-icons svg {
+  width: 20px;
+  height: 20px;
+  display: block;
+}
+
+
 @media (max-width: 768px) {
   .hero {
+    /* First value for gradient, second for image */
+    background-size: cover, contain;
+    background-position: center, center 40%;
     height: 80vh;
-    background-repeat: no-repeat;
-    background-size: contain;
-    background-position: center 35%;
   }
 }
