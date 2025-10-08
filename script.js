@@ -853,3 +853,86 @@ function initMobileNav() {
         });
     });
 }
+
+
+// === Safe cart server integration wrapper ===
+(function(){
+  if (window.__cartServerWrapApplied) return;
+  window.__cartServerWrapApplied = true;
+
+  // Helpers
+  function setCookie(name, value, days) {
+    try {
+      var expires = "";
+      if (days) {
+        var date = new Date();
+        date.setTime(date.getTime() + (days*24*60*60*1000));
+        expires = "; expires=" + date.toUTCString();
+      }
+      document.cookie = name + "=" + encodeURIComponent(value) + expires + "; path=/; SameSite=Lax";
+    } catch(e) {}
+  }
+  async function __apiGetCart(){ const r=await fetch('/api/cart'); if(r.status===401) throw new Error('401'); const d=await r.json(); if(!r.ok||!d.success) throw new Error(d.message||'Failed'); return d.items||[]; }
+  async function __apiAddToCart(name, price, quantity){
+    const r=await fetch('/api/cart/add',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({name,unitPrice:price,quantity})});
+    if(r.status===401) throw new Error('401');
+    const d=await r.json(); if(!r.ok||!d.success) throw new Error(d.message||'Failed'); return d.items||[];
+  }
+  function ensureSessionCookie(){
+    try {
+      const u = JSON.parse(localStorage.getItem('currentUser')||'null');
+      if(!u) return false;
+      const payload = JSON.stringify({ id: u.id, email: u.email, firstname: u.firstname, role: u.role, loggedInAt: new Date().toISOString() });
+      setCookie('user_session', payload, 1);
+      return true;
+    } catch(e){ return false; }
+  }
+  function cacheItems(items){
+    try {
+      const normalized = (items||[]).map(it=>({ name: it.name, unitPrice: Number(it.price||0), quantity: Number(it.quantity||1), price: Number(it.price||0)*Number(it.quantity||1) }));
+      localStorage.setItem('cart', JSON.stringify(normalized));
+      if (typeof updateCartCount === 'function') updateCartCount();
+    } catch(e){}
+  }
+
+  // Wrap original addToCart
+  const __origAddToCart = window.addToCart;
+  window.addToCart = function(productName, price){
+    try {
+      const user = JSON.parse(localStorage.getItem('currentUser')||'null');
+      if (!user) return __origAddToCart.apply(this, arguments);
+
+      // Try server first
+      return __apiAddToCart(productName, price, 1).then(items => {
+        cacheItems(items);
+        if (typeof showNotification === 'function') showNotification(`${productName} added to cart!`);
+      }).catch(err => {
+        if (String(err && err.message) === '401') {
+          // No session cookie: set one and retry once
+          if (ensureSessionCookie()) {
+            return __apiAddToCart(productName, price, 1).then(items => {
+              cacheItems(items);
+              if (typeof showNotification === 'function') showNotification(`${productName} added to cart!`);
+            }).catch(() => {
+              // Fallback to local cart to avoid breaking UX
+              return __origAddToCart.apply(this, arguments);
+            });
+          }
+          // Fallback if cannot ensure cookie
+          return __origAddToCart.apply(this, arguments);
+        } else {
+          // Any other error: fallback gracefully
+          return __origAddToCart.apply(this, arguments);
+        }
+      });
+    } catch(e){
+      return __origAddToCart.apply(this, arguments);
+    }
+  };
+
+  // Keep badge in sync when tab changes
+  window.addEventListener('storage', (e)=>{
+    if(e.key==='cart' && typeof updateCartCount==='function'){ try{ updateCartCount(); }catch(_){}};
+  });
+
+})();
