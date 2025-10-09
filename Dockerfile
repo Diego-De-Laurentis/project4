@@ -1,28 +1,19 @@
-# Use official Node.js runtime
-FROM node:18-alpine
-
-# Set working directory
+# syntax=docker/dockerfile:1
+FROM node:20-alpine AS deps
 WORKDIR /app
-
-# Copy package files
-COPY package*.json ./
-
-# Install dependencies
-RUN npm install
-
-# Copy source code
-COPY . .
-
-# Create non-root user
-RUN addgroup -g 1001 -S nodejs
-RUN adduser -S nextjs -u 1001
-
-# Change ownership
-RUN chown -R nextjs:nodejs /app
-USER nextjs
-
-# Expose port
-EXPOSE 3000
-
-# Start application
-CMD ["npm", "start"]
+COPY api-atlas/package*.json ./api-atlas/
+RUN cd api-atlas && npm install --production
+FROM node:20-alpine AS runner
+WORKDIR /app
+ENV NODE_ENV=production
+COPY --from=deps /app/api-atlas/node_modules ./api-atlas/node_modules
+COPY api-atlas ./api-atlas
+COPY index.html ./index.html
+COPY styles.css ./styles.css
+COPY script.js ./script.js
+COPY img ./img
+COPY content ./content
+COPY admin ./admin
+COPY auth ./auth
+EXPOSE 8080
+CMD ["node", "api-atlas/src/server.js"]
