@@ -572,7 +572,6 @@ document.addEventListener('DOMContentLoaded', async function() {
 
     // Load header and footer
     await loadHTML('header', 'content/header.html');
-    initMobileNav();
     await loadHTML('footer', 'content/footer.html');
     
     // Load all page content
@@ -834,105 +833,38 @@ showNotification = function(message) {
     }
 };
 
-// --- Mobile Nav Toggle ---
-function initMobileNav() {
-    const headerEl = document.querySelector('header');
-    if (!headerEl) return;
-    const btn = headerEl.querySelector('.menu-toggle');
-    if (!btn) return;
-    const nav = headerEl.querySelector('nav');
-    btn.addEventListener('click', () => {
-        const opened = headerEl.classList.toggle('open');
-        btn.setAttribute('aria-expanded', opened ? 'true' : 'false');
-    });
-    // Close menu when clicking a link (optional)
-    nav?.querySelectorAll('a[href^="#"]').forEach(a => {
-        a.addEventListener('click', () => {
-            headerEl.classList.remove('open');
-            btn.setAttribute('aria-expanded', 'false');
-        });
-    });
-}
-
-
-// === Safe cart server integration wrapper ===
+/* === Cart cookie guard + server sync (non-invasive) === */
 (function(){
-  if (window.__cartServerWrapApplied) return;
-  window.__cartServerWrapApplied = true;
-
-  // Helpers
-  function setCookie(name, value, days) {
-    try {
-      var expires = "";
-      if (days) {
-        var date = new Date();
-        date.setTime(date.getTime() + (days*24*60*60*1000));
-        expires = "; expires=" + date.toUTCString();
-      }
-      document.cookie = name + "=" + encodeURIComponent(value) + expires + "; path=/; SameSite=Lax";
-    } catch(e) {}
+  function isLoggedIn(){
+    try { return !!JSON.parse(localStorage.getItem('currentUser')||'null'); } catch(e){ return false; }
   }
-  async function __apiGetCart(){ const r=await fetch('/api/cart'); if(r.status===401) throw new Error('401'); const d=await r.json(); if(!r.ok||!d.success) throw new Error(d.message||'Failed'); return d.items||[]; }
-  async function __apiAddToCart(name, price, quantity){
-    const r=await fetch('/api/cart/add',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({name,unitPrice:price,quantity})});
-    if(r.status===401) throw new Error('401');
-    const d=await r.json(); if(!r.ok||!d.success) throw new Error(d.message||'Failed'); return d.items||[];
-  }
-  function ensureSessionCookie(){
-    try {
-      const u = JSON.parse(localStorage.getItem('currentUser')||'null');
-      if(!u) return false;
-      const payload = JSON.stringify({ id: u.id, email: u.email, firstname: u.firstname, role: u.role, loggedInAt: new Date().toISOString() });
-      setCookie('user_session', payload, 1);
-      return true;
-    } catch(e){ return false; }
-  }
-  function cacheItems(items){
-    try {
-      const normalized = (items||[]).map(it=>({ name: it.name, unitPrice: Number(it.price||0), quantity: Number(it.quantity||1), price: Number(it.price||0)*Number(it.quantity||1) }));
-      localStorage.setItem('cart', JSON.stringify(normalized));
-      if (typeof updateCartCount === 'function') updateCartCount();
-    } catch(e){}
-  }
-
-  // Wrap original addToCart
-  const __origAddToCart = window.addToCart;
-  window.addToCart = function(productName, price){
-    try {
-      const user = JSON.parse(localStorage.getItem('currentUser')||'null');
-      if (!user) return __origAddToCart.apply(this, arguments);
-
-      // Try server first
-      return __apiAddToCart(productName, price, 1).then(items => {
-        cacheItems(items);
-        if (typeof showNotification === 'function') showNotification(`${productName} added to cart!`);
-      }).catch(err => {
-        if (String(err && err.message) === '401') {
-          // No session cookie: set one and retry once
-          if (ensureSessionCookie()) {
-            return __apiAddToCart(productName, price, 1).then(items => {
-              cacheItems(items);
-              if (typeof showNotification === 'function') showNotification(`${productName} added to cart!`);
-            }).catch(() => {
-              // Fallback to local cart to avoid breaking UX
-              return __origAddToCart.apply(this, arguments);
-            });
-          }
-          // Fallback if cannot ensure cookie
-          return __origAddToCart.apply(this, arguments);
-        } else {
-          // Any other error: fallback gracefully
-          return __origAddToCart.apply(this, arguments);
-        }
-      });
-    } catch(e){
-      return __origAddToCart.apply(this, arguments);
-    }
+  // Guard cookie writes while logged in
+  const __origSaveCartToCookies = (typeof saveCartToCookies === 'function') ? saveCartToCookies : null;
+  window.saveCartToCookies = function(){
+    if (isLoggedIn()) { try{ deleteCookie && deleteCookie('user_cart'); }catch(e){} return; }
+    return __origSaveCartToCookies ? __origSaveCartToCookies.apply(this, arguments) : undefined;
   };
-
-  // Keep badge in sync when tab changes
-  window.addEventListener('storage', (e)=>{
-    if(e.key==='cart' && typeof updateCartCount==='function'){ try{ updateCartCount(); }catch(_){}};
-  });
-
+  // Guard cookie loads while logged in
+  const __origLoadCartFromCookies = (typeof loadCartFromCookies === 'function') ? loadCartFromCookies : null;
+  window.loadCartFromCookies = function(){
+    if (isLoggedIn()) { return; }
+    return __origLoadCartFromCookies ? __origLoadCartFromCookies.apply(this, arguments) : undefined;
+  };
+  // Sync server cart to local on page load (keeps header count correct)
+  async function __syncServerCartToLocal(){
+    if (!isLoggedIn()) return;
+    try {
+      const r = await fetch('/api/cart', { headers: { 'Accept': 'application/json' } });
+      const d = await r.json();
+      if (r.ok && d && d.success) {
+        const normalized = (d.items||[]).map(it => ({
+          name: it.name, unitPrice: Number(it.price||0),
+          quantity: Number(it.quantity||1), price: Number(it.price||0)*Number(it.quantity||1)
+        }));
+        localStorage.setItem('cart', JSON.stringify(normalized));
+        if (typeof updateCartCount === 'function') updateCartCount();
+      }
+    } catch(e){ /* silent */ }
+  }
+  document.addEventListener('DOMContentLoaded', __syncServerCartToLocal);
 })();
