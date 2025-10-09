@@ -1,18 +1,7 @@
-# syntax=docker/dockerfile:1
-FROM node:20-alpine AS deps
+FROM node:20-alpine
 WORKDIR /app
-COPY api-atlas/package*.json ./api-atlas/
-RUN cd api-atlas && npm install --production
-
-FROM node:20-alpine AS runner
-WORKDIR /app
-ENV NODE_ENV=production
-
-# 1) Kopiere den gesamten Repo-Inhalt (statische Files egal wo sie liegen)
 COPY . .
-
-# 2) API-Node-Modules aus deps reinziehen
-COPY --from=deps /app/api-atlas/node_modules ./api-atlas/node_modules
-
+RUN cd project4-userfix_project4-1/api-atlas && npm install --production
+ENV NODE_ENV=production
 EXPOSE 8080
-CMD ["node", "api-atlas/src/server.js"]
+CMD ["node","project4-userfix_project4-1/api-atlas/src/server.js"]
