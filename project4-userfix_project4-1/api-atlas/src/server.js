@@ -5,12 +5,20 @@ import helmet from "helmet";
 import path from "path";
 import { fileURLToPath } from "url";
 import { connect } from "./db.js";
-import authRoutes from "./routes/auth.routes.js";
-import cartRoutes from "./routes/cart.routes.js";
-import productRoutes from "./routes/product.routes.js";
-import imageRoutes from "./routes/images.routes.js";
+
+// Robuste Importe: default ODER module.exports
+import * as authM from "./routes/auth.routes.js";
+import * as cartM from "./routes/cart.routes.js";
+import * as productM from "./routes/product.routes.js";
+import * as imageM from "./routes/images.routes.js";
+
+const authRoutes = authM.default || authM;
+const cartRoutes = cartM.default || cartM;
+const productRoutes = productM.default || productM;
+const imageRoutes = imageM.default || imageM;
 
 const app = express();
+app.set("trust proxy", 1);
 app.use(helmet());
 app.use(cookieParser());
 app.use(express.json({ limit: "1mb" }));
