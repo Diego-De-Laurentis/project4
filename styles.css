@@ -937,3 +937,15 @@ nav a.active {
     from { opacity: 0; transform: translateY(50px); }
     to { opacity: 1; transform: translateY(0); }
 }
+
+
+/* --- Header PNG logo sizing --- */
+header .header-content {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+}
+header .logo { display: flex; align-items: center; }
+header .site-logo { display: block; height: 124px; width: auto; object-fit: contain; }
+@media (max-width: 768px) { header .site-logo { height: 36px; } }
+header .header-content nav { margin-left: auto; }
