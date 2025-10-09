@@ -13,7 +13,7 @@ COPY styles.css ./styles.css
 COPY script.js ./script.js
 COPY img ./img
 COPY content ./content
-COPY admin ./admin
-COPY auth ./auth
+COPY admin project4-userfix_project4-1/admin
+COPY auth project4-userfix_project4-1/auth
 EXPOSE 8080
 CMD ["node", "api-atlas/src/server.js"]
