@@ -35,6 +35,11 @@ if (process.env.FRONTEND_ORIGIN) {
 app.use(cookieParser());
 app.use(express.json({ limit: "1mb" }));
 
+// Debug: Ping
+app.get("/api/_debug/ping", (_req, res) => {
+  res.type("text").send("pong");
+});
+
 // Debug: DB-Status
 app.get("/api/_debug/db", async (_req, res) => {
   const { connection } = await import("mongoose");
