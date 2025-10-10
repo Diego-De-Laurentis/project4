@@ -572,6 +572,7 @@ document.addEventListener('DOMContentLoaded', async function() {
 
     // Load header and footer
     await loadHTML('header', 'content/header.html');
+    initMobileNav();
     await loadHTML('footer', 'content/footer.html');
     
     // Load all page content
@@ -832,3 +833,23 @@ showNotification = function(message) {
         originalShowNotification(message);
     }
 };
+
+// --- Mobile Nav Toggle ---
+function initMobileNav() {
+    const headerEl = document.querySelector('header');
+    if (!headerEl) return;
+    const btn = headerEl.querySelector('.menu-toggle');
+    if (!btn) return;
+    const nav = headerEl.querySelector('nav');
+    btn.addEventListener('click', () => {
+        const opened = headerEl.classList.toggle('open');
+        btn.setAttribute('aria-expanded', opened ? 'true' : 'false');
+    });
+    // Close menu when clicking a link (optional)
+    nav?.querySelectorAll('a[href^="#"]').forEach(a => {
+        a.addEventListener('click', () => {
+            headerEl.classList.remove('open');
+            btn.setAttribute('aria-expanded', 'false');
+        });
+    });
+}
