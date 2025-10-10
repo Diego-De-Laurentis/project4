@@ -572,6 +572,7 @@ document.addEventListener('DOMContentLoaded', async function() {
 
     // Load header and footer
     await loadHTML('header', 'content/header.html');
+    initMobileNav();
     await loadHTML('footer', 'content/footer.html');
     
     // Load all page content
@@ -833,38 +834,22 @@ showNotification = function(message) {
     }
 };
 
-/* === Cart cookie guard + server sync (non-invasive) === */
-(function(){
-  function isLoggedIn(){
-    try { return !!JSON.parse(localStorage.getItem('currentUser')||'null'); } catch(e){ return false; }
-  }
-  // Guard cookie writes while logged in
-  const __origSaveCartToCookies = (typeof saveCartToCookies === 'function') ? saveCartToCookies : null;
-  window.saveCartToCookies = function(){
-    if (isLoggedIn()) { try{ deleteCookie && deleteCookie('user_cart'); }catch(e){} return; }
-    return __origSaveCartToCookies ? __origSaveCartToCookies.apply(this, arguments) : undefined;
-  };
-  // Guard cookie loads while logged in
-  const __origLoadCartFromCookies = (typeof loadCartFromCookies === 'function') ? loadCartFromCookies : null;
-  window.loadCartFromCookies = function(){
-    if (isLoggedIn()) { return; }
-    return __origLoadCartFromCookies ? __origLoadCartFromCookies.apply(this, arguments) : undefined;
-  };
-  // Sync server cart to local on page load (keeps header count correct)
-  async function __syncServerCartToLocal(){
-    if (!isLoggedIn()) return;
-    try {
-      const r = await fetch('/api/cart', { headers: { 'Accept': 'application/json' } });
-      const d = await r.json();
-      if (r.ok && d && d.success) {
-        const normalized = (d.items||[]).map(it => ({
-          name: it.name, unitPrice: Number(it.price||0),
-          quantity: Number(it.quantity||1), price: Number(it.price||0)*Number(it.quantity||1)
-        }));
-        localStorage.setItem('cart', JSON.stringify(normalized));
-        if (typeof updateCartCount === 'function') updateCartCount();
-      }
-    } catch(e){ /* silent */ }
-  }
-  document.addEventListener('DOMContentLoaded', __syncServerCartToLocal);
-})();
+// --- Mobile Nav Toggle ---
+function initMobileNav() {
+    const headerEl = document.querySelector('header');
+    if (!headerEl) return;
+    const btn = headerEl.querySelector('.menu-toggle');
+    if (!btn) return;
+    const nav = headerEl.querySelector('nav');
+    btn.addEventListener('click', () => {
+        const opened = headerEl.classList.toggle('open');
+        btn.setAttribute('aria-expanded', opened ? 'true' : 'false');
+    });
+    // Close menu when clicking a link (optional)
+    nav?.querySelectorAll('a[href^="#"]').forEach(a => {
+        a.addEventListener('click', () => {
+            headerEl.classList.remove('open');
+            btn.setAttribute('aria-expanded', 'false');
+        });
+    });
+}

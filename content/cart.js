@@ -40,9 +40,7 @@ class CartPage {
             return it;
         });
         localStorage.setItem('cart', JSON.stringify(this.cart));
-        try { if (typeof saveCartToCookies==='function') saveCartToCookies(); } catch(e) {}
-        try { if (typeof clearCartCookiesIfEmpty==='function') clearCartCookiesIfEmpty(); } catch(e) {}
-        }
+    }
 
     // load cart
     loadCartItems() {
@@ -122,26 +120,11 @@ class CartPage {
                 if (btn.classList.contains('remove-btn')) {
                     const index = parseInt(btn.getAttribute('data-index'), 10);
                     if (!isNaN(index)) {
-                        const name = this.cart[index].name;
                         this.cart.splice(index, 1);
                         this.saveCart();
-                        const user = JSON.parse(localStorage.getItem('currentUser')||'null');
-                        if (user) {
-                            (async () => {
-                              try {
-                                const r = await fetch('/api/cart/item', { method:'PATCH', headers:{'Content-Type':'application/json'}, body: JSON.stringify({ name, quantity: 0 }) });
-                                const d = await r.json();
-                                if (r.ok && d.success) {
-                                  const normalized = d.items.map(it => ({ name: it.name, unitPrice: it.price, quantity: it.quantity, price: it.price*it.quantity }));
-                                  localStorage.setItem('cart', JSON.stringify(normalized));
-                                  this.cart = normalized;
-                                }
-                              } catch(e){}
-                              this.loadCartItems(); this.updateCartSummary(); this.updateMainCartCount();
-                            })();
-                        } else {
-                            this.loadCartItems(); this.updateCartSummary(); this.updateMainCartCount();
-                        }
+                        this.loadCartItems();
+                        this.updateCartSummary();
+                        this.updateMainCartCount();
                     }
                     return;
                 }
@@ -150,26 +133,11 @@ class CartPage {
                 if (btn.classList.contains('increase-btn')) {
                     const index = parseInt(btn.getAttribute('data-index'), 10);
                     if (!isNaN(index)) {
-                        const name = this.cart[index].name;
                         this.cart[index].quantity += 1;
                         this.saveCart();
-                        const user = JSON.parse(localStorage.getItem('currentUser')||'null');
-                        if (user) {
-                            (async () => {
-                              try {
-                                const r = await fetch('/api/cart/item', { method:'PATCH', headers:{'Content-Type':'application/json'}, body: JSON.stringify({ name, quantity: this.cart[index].quantity }) });
-                                const d = await r.json();
-                                if (r.ok && d.success) {
-                                  const normalized = d.items.map(it => ({ name: it.name, unitPrice: it.price, quantity: it.quantity, price: it.price*it.quantity }));
-                                  localStorage.setItem('cart', JSON.stringify(normalized));
-                                  this.cart = normalized;
-                                }
-                              } catch(e){}
-                              this.loadCartItems(); this.updateCartSummary(); this.updateMainCartCount();
-                            })();
-                        } else {
-                            this.loadCartItems(); this.updateCartSummary(); this.updateMainCartCount();
-                        }
+                        this.loadCartItems();
+                        this.updateCartSummary();
+                        this.updateMainCartCount();
                     }
                     return;
                 }
@@ -178,30 +146,14 @@ class CartPage {
                 if (btn.classList.contains('decrease-btn')) {
                     const index = parseInt(btn.getAttribute('data-index'), 10);
                     if (!isNaN(index)) {
-                        const name = this.cart[index].name;
                         this.cart[index].quantity -= 1;
                         if (this.cart[index].quantity <= 0) {
                             this.cart.splice(index, 1);
                         }
                         this.saveCart();
-                        const user = JSON.parse(localStorage.getItem('currentUser')||'null');
-                        if (user) {
-                            (async () => {
-                              try {
-                                const qty = (this.cart.find(it => it.name === name)?.quantity) || 0;
-                                const r = await fetch('/api/cart/item', { method:'PATCH', headers:{'Content-Type':'application/json'}, body: JSON.stringify({ name, quantity: qty }) });
-                                const d = await r.json();
-                                if (r.ok && d.success) {
-                                  const normalized = d.items.map(it => ({ name: it.name, unitPrice: it.price, quantity: it.quantity, price: it.price*it.quantity }));
-                                  localStorage.setItem('cart', JSON.stringify(normalized));
-                                  this.cart = normalized;
-                                }
-                              } catch(e){}
-                              this.loadCartItems(); this.updateCartSummary(); this.updateMainCartCount();
-                            })();
-                        } else {
-                            this.loadCartItems(); this.updateCartSummary(); this.updateMainCartCount();
-                        }
+                        this.loadCartItems();
+                        this.updateCartSummary();
+                        this.updateMainCartCount();
                     }
                     return;
                 }

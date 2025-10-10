@@ -355,3 +355,4 @@ body {
         gap: 0.5rem;
     }
 }
+@media (max-width: 768px) { .auth-form { padding: 1.25rem; } }
