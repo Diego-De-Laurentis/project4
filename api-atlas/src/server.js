@@ -5,6 +5,7 @@ import helmet from "helmet";
 import cors from "cors";
 import path from "path";
 import { fileURLToPath } from "url";
+import mongoose from "mongoose";              // <— fix: direkt importieren
 import { connect } from "./db.js";
 import authRoutes from "./routes/auth.routes.js";
 import cartRoutes from "./routes/cart.routes.js";
@@ -41,9 +42,9 @@ app.get("/api/_debug/ping", (_req, res) => {
 });
 
 // Debug: DB-Status
-app.get("/api/_debug/db", async (_req, res) => {
-  const { connection } = await import("mongoose");
-  res.json({ state: connection.readyState, name: connection.name, host: connection.host });
+app.get("/api/_debug/db", (_req, res) => {
+  const c = mongoose.connection;
+  res.json({ state: c.readyState, name: c.name, host: c.host });
 });
 
 // API
@@ -62,6 +63,5 @@ app.get("*", (_req, res) => res.sendFile(path.join(ROOT, "index.html")));
 
 const port = Number(process.env.PORT || 8080);
 await connect();
-const { default: mongoose } = await import("mongoose");
 console.log("DB name:", mongoose.connection.name);
 app.listen(port, () => console.log(`API on :${port}`));
