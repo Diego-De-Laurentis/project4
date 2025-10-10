@@ -10,6 +10,7 @@ import authRoutes from "./routes/auth.routes.js";
 import cartRoutes from "./routes/cart.routes.js";
 import productRoutes from "./routes/product.routes.js";
 import adminRoutes from "./routes/admin.routes.js"; // <— hinzugefügt
+app.use("/api", adminRoutes);
 
 const app = express();
 app.set("trust proxy", 1);
