@@ -45,11 +45,12 @@ document.addEventListener('DOMContentLoaded', function() {
         const formData = new FormData(this);
         const productData = {
             name: formData.get('product-name'),
-            price: formData.get('product-price'),
             description: formData.get('product-description'),
             image_url: formData.get('product-image'),
             category: formData.get('product-category')
-        };
+        ,
+      price: 0
+    };
         
         // Check if we're editing
         const editingId = this.getAttribute('data-editing');
@@ -109,7 +110,6 @@ document.addEventListener('DOMContentLoaded', function() {
                          onerror="this.src='https://via.placeholder.com/100x80/333/FFFFFF?text=Image+Error'">
                     <div class="product-info">
                         <h3>${product.name}</h3>
-                        <p class="price">$${parseFloat(product.price).toFixed(2)}</p>
                         <p class="description">${product.description || 'No description'}</p>
                         <small>Category: ${product.category}</small>
                         <small>ID: ${product._id}</small>
@@ -147,8 +147,8 @@ document.addEventListener('DOMContentLoaded', function() {
     }
     
     async function addProduct(productData) {
-        if (!productData.name || !productData.price || !productData.image_url) {
-            alert('Please fill in all required fields (Name, Price, and Image URL).');
+        if (!productData.name || !productData.image_url) {
+            alert('Please fill in all required fields (Name and Image URL).');
             return;
         }
         
@@ -189,8 +189,8 @@ document.addEventListener('DOMContentLoaded', function() {
     }
     
     async function updateProduct(productId, productData) {
-        if (!productData.name || !productData.price || !productData.image_url) {
-            alert('Please fill in all required fields (Name, Price, and Image URL).');
+        if (!productData.name || !productData.image_url) {
+            alert('Please fill in all required fields (Name and Image URL).');
             return;
         }
         
@@ -248,7 +248,6 @@ document.addEventListener('DOMContentLoaded', function() {
             if (data.success && data.product) {
                 const product = data.product;
                 document.getElementById('product-name').value = product.name;
-                document.getElementById('product-price').value = product.price;
                 document.getElementById('product-description').value = product.description || '';
                 document.getElementById('product-image').value = product.image_url;
                 document.getElementById('product-category').value = product.category;
@@ -444,7 +443,6 @@ document.addEventListener('DOMContentLoaded', function() {
                             ${order.items.map(item => `
                                 <li>
                                     <span>${item.name}</span>
-                                    <span>$${item.price.toFixed(2)} x ${item.quantity}</span>
                                 </li>
                             `).join('')}
                         </ul>

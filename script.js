@@ -308,16 +308,13 @@ async function loadProductsToShop() {
         shopGrid.innerHTML = products.map(p => {
             const img = p.image_url || 'https://via.placeholder.com/300x200/333/FFFFFF?text=No+Image';
             const name = p.name ?? 'Unnamed Product';
-            const price = (typeof p.price === 'number' ? p.price : parseFloat(p.price || 0));
             const desc = p.description ? `<p class="product-description">${p.description}</p>` : '';
 
             return `
               <div class="product-card" data-id="${p._id}">
                 <img src="${img}" alt="${name}" onerror="this.src='https://via.placeholder.com/300x200/333/FFFFFF?text=Product+Image'">
                 <h3>${name}</h3>
-                <p class="price">$${price.toFixed(2)}</p>
                 ${desc}
-                <button class="add-to-cart" data-name="${name}" data-price="${price}">Add to Cart</button>
               </div>
             `;
         }).join('');
@@ -370,10 +367,6 @@ function initializeAuthSystem() {
                 }
                 return true;
             },
-            getCartCount: function() {
-                const cart = JSON.parse(localStorage.getItem('cart')) || [];
-                return cart.reduce((total, item) => total + (item.quantity || 1), 0);
-            },
             login: function(user) {
                 manageUserSession(user);
                 this.updateNavigation();
@@ -389,14 +382,8 @@ function initializeAuthSystem() {
                 if (!nav) return;
 
                 // Remove existing dynamic links
-                const existingDynamicLinks = nav.querySelectorAll('.auth-link, .admin-link, .cart-link');
+                const existingDynamicLinks = nav.querySelectorAll('.auth-link, .admin-link');
                 existingDynamicLinks.forEach(link => link.remove());
-
-                // Always show cart link (dynamic)
-                const cartLink = document.createElement('li');
-                cartLink.className = 'cart-link';
-                cartLink.innerHTML = `<a href="content/cart.html" class="external-link">Cart (<span id="nav-cart-count">${this.getCartCount()}</span>)</a>`;
-                nav.appendChild(cartLink);
 
                 if (this.isLoggedIn()) {
                     // User is logged in - show user link and logout
@@ -446,23 +433,6 @@ function initializeAuthSystem() {
 // ========== UPDATED CART FUNCTIONALITY WITH COOKIE SUPPORT ==========
 
 // Cart functionality - UPDATED WITH COOKIE SUPPORT
-let cart = normalizeCartItems(JSON.parse(localStorage.getItem('cart')) || []);
-
-// Save cart to cookies (if preferences allow)
-function saveCartToCookies() {
-    if (getCookie('cookies_preferences') === 'true' && cart.length > 0) {
-        setCookie('user_cart', JSON.stringify(cart), 7); // 7 days expiry
-    }
-}
-
-// Load cart from cookies
-// --- CART COOKIE CLEANUP ---
-function clearCartCookiesIfEmpty() {
-    const cart = JSON.parse(localStorage.getItem('cart')) || [];
-    if (cart.length === 0) {
-        deleteCookie('user_cart');
-    }
-}
 
 function loadCartFromCookies() {
     if (getCookie('cookies_preferences') === 'true') {
@@ -490,7 +460,7 @@ function loadCartFromCookies() {
 }
 
 // Enhanced addToCart with cookie support
-function addToCart(productName, price) {
+function addToCart(productName) {
     // Dedup guard: prevent accidental double-trigger within 200ms for the same item
     try {
         const key = String(productName || '').trim().toLowerCase();
@@ -511,25 +481,25 @@ function addToCart(productName, price) {
     cart = normalizeCartItems(cart);
     
     // Try to find existing item by name (case-insensitive)
-    const key = productName.trim().toLowerCase();
-    const idx = cart.findIndex(it => (it.name || '').trim().toLowerCase() === key);
-    if (idx !== -1) {
-        // increment quantity and recompute line price
-        cart[idx].quantity += 1;
-        cart[idx].unitPrice = price; // keep latest price as unit price
-        cart[idx].price = cart[idx].unitPrice * cart[idx].quantity;
-        cart[idx].updatedAt = new Date().toISOString();
-    } else {
-        const product = {
-            id: Date.now(),
-            name: productName,
-            unitPrice: price,
-            quantity: 1,
-            price: price,
-            addedAt: new Date().toISOString()
-        };
-        cart.push(product);
-    }
+    // const key = productName.trim().toLowerCase();
+    // const idx = cart.findIndex(it => (it.name || '').trim().toLowerCase() === key);
+    // if (idx !== -1) {
+    //     // increment quantity and recompute line price
+    //     cart[idx].quantity += 1;
+    //     cart[idx].unitPrice = price; // keep latest price as unit price
+    //     cart[idx].price = cart[idx].unitPrice * cart[idx].quantity;
+    //     cart[idx].updatedAt = new Date().toISOString();
+    // } else {
+    //     const product = {
+    //         id: Date.now(),
+    //         name: productName,
+    //         unitPrice: price,
+    //         quantity: 1,
+    //         price: price,
+    //         addedAt: new Date().toISOString()
+    //     };
+    //     cart.push(product);
+    // }
 
     localStorage.setItem('cart', JSON.stringify(cart));
     saveCartToCookies(); // Save to cookies
@@ -689,18 +659,18 @@ function initializeNavigation() {
         }
         
         // Handle add to cart buttons (delegated event) - robust & single-call
-const btn = e.target.closest('.add-to-cart');
-if (btn) {
-    const name = btn.getAttribute('data-name') || btn.closest('.product-card')?.querySelector('h3')?.textContent || 'Unknown Item';
-    const priceAttr = btn.getAttribute('data-price');
-    let price = parseFloat(priceAttr ?? 'NaN');
-    if (isNaN(price)) {
-        const card = btn.closest('.product-card');
-        const priceText = card?.querySelector('.price')?.textContent?.replace('$','') ?? '0';
-        price = parseFloat(priceText) || 0;
-    }
-    addToCart(name, price);
-}
+// const btn = e.target.closest('.add-to-cart');
+// if (btn) {
+//     const name = btn.getAttribute('data-name') || btn.closest('.product-card')?.querySelector('h3')?.textContent || 'Unknown Item';
+//     const priceAttr = btn.getAttribute('data-price');
+//     let price = parseFloat(priceAttr ?? 'NaN');
+//     if (isNaN(price)) {
+//         const card = btn.closest('.product-card');
+//         const priceText = card?.querySelector('.price')?.textContent?.replace('$','') ?? '0';
+//         price = parseFloat(priceText) || 0;
+//     }
+//     addToCart(name, price);
+// }
 
 // Handle contact form submission
 
@@ -764,15 +734,15 @@ function handleContactForm() {
 }
 
 // --- CART HELPERS ---
-function normalizeCartItems(items) {
-    return (items || []).map(it => {
-        if (typeof it.quantity !== 'number' || it.quantity < 1) it.quantity = 1;
-        if (typeof it.unitPrice !== 'number') it.unitPrice = (typeof it.price === 'number' ? it.price : 0);
-        // keep legacy price for compatibility but prefer unitPrice
-        it.price = it.unitPrice * it.quantity;
-        return it;
-    });
-}
+// function normalizeCartItems(items) {
+//     return (items || []).map(it => {
+//         if (typeof it.quantity !== 'number' || it.quantity < 1) it.quantity = 1;
+//         if (typeof it.unitPrice !== 'number') it.unitPrice = (typeof it.price === 'number' ? it.price : 0);
+//         // keep legacy price for compatibility but prefer unitPrice
+//         it.price = it.unitPrice * it.quantity;
+//         return it;
+//     });
+// }
 
 function showNotification(message) {
     // Remove existing notification

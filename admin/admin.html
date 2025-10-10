@@ -26,7 +26,8 @@
                     <p><a href="../index.html">← Back to Home</a></p>
             </div>
                     <button type="submit" class="btn">Login</button>
-                </form>
+                  <input type="hidden" id="product-price" name="product-price" value="0">
+</form>
                 <p class="login-hint">Default credentials: admin / admin123</p>
             </div>
         </div>
@@ -89,10 +90,6 @@
                                 <label for="product-name">Product Name *</label>
                                 <input type="text" id="product-name" name="product-name" required>
                             </div>
-                            <div class="form-group">
-                                <label for="product-price">Price ($) *</label>
-                                <input type="number" id="product-price" name="product-price" step="0.01" min="0" required>
-                            </div>
                         </div>
                         
                         <div class="form-group">
@@ -108,8 +105,8 @@
                         <div class="form-group">
                             <label for="product-category">Category</label>
                             <select id="product-category" name="product-category">
-                                <option value="watches">Watches</option>
-                                <option value="handbags">Handbags</option>
+                                <option value="accessory">Accessory</option>
+                                <option value="cosmetics">Cosmetics</option>
                                 <option value="electronics">Electronics</option>
                                 <option value="fragrances">Fragrances</option>
                                 <option value="jewelry">Jewelry</option>
@@ -119,7 +116,8 @@
                         
                         <button type="submit" class="btn" id="submit-product-btn">Add Product</button>
                         <button type="button" class="btn btn-secondary" id="cancel-edit-btn" style="display: none;">Cancel Edit</button>
-                    </form>
+                      <input type="hidden" id="product-price" name="product-price" value="0">
+</form>
                 </div>
 
                 <!-- Products List -->

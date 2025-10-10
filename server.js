@@ -32,7 +32,7 @@ const userSchema = new mongoose.Schema({
 
 const productSchema = new mongoose.Schema({
   name: { type: String, required: true },
-  price: { type: Number, required: true },
+  price: { type: Number, default: 0 },
   description: String,
   image_url: String,
   category: String,
@@ -218,7 +218,7 @@ app.post('/api/products', async (req, res) => {
 
     const product = new Product({
       name,
-      price: parseFloat(price),
+      price: (price !== undefined && price !== null && String(price).trim() !== '' ? parseFloat(price) : 0),
       description,
       image_url: image,
       category
@@ -244,7 +244,7 @@ app.put('/api/products/:id', async (req, res) => {
 
     await Product.findByIdAndUpdate(id, {
       name,
-      price: parseFloat(price),
+      price: (price !== undefined && price !== null && String(price).trim() !== '' ? parseFloat(price) : 0),
       description,
       image_url: image,
       category
@@ -551,16 +551,11 @@ app.post('/api/admin/products', async (req, res) => {
     const { name, price, description, image_url, category } = req.body;
 
     // Validate required fields
-    if (!name || !price || !image_url) {
-      return res.status(400).json({
-        success: false,
-        message: 'Name, price, and image URL are required'
-      });
-    }
+    if (!name || !image_url) { return res.status(400).json({ success: false, message: 'Name and image URL are required' }); }
 
     const product = new Product({
       name,
-      price: parseFloat(price),
+      price: (price !== undefined && price !== null && String(price).trim() !== '' ? parseFloat(price) : 0),
       description: description || '',
       image_url,
       category: category || 'other'
@@ -589,18 +584,13 @@ app.put('/api/admin/products/:id', async (req, res) => {
     const { name, price, description, image_url, category } = req.body;
 
     // Validate required fields
-    if (!name || !price || !image_url) {
-      return res.status(400).json({
-        success: false,
-        message: 'Name, price, and image URL are required'
-      });
-    }
+    if (!name || !image_url) { return res.status(400).json({ success: false, message: 'Name and image URL are required' }); }
 
     const product = await Product.findByIdAndUpdate(
       id,
       {
         name,
-        price: parseFloat(price),
+        price: (price !== undefined && price !== null && String(price).trim() !== '' ? parseFloat(price) : 0),
         description: description || '',
         image_url,
         category: category || 'other',
