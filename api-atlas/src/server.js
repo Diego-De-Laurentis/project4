@@ -9,6 +9,7 @@ import { connect } from "./db.js";
 import authRoutes from "./routes/auth.routes.js";
 import cartRoutes from "./routes/cart.routes.js";
 import productRoutes from "./routes/product.routes.js";
+import adminRoutes from "./routes/admin.routes.js"; // <— hinzugefügt
 
 const app = express();
 app.set("trust proxy", 1);
@@ -21,13 +22,12 @@ app.use(helmet({
       "script-src": ["'self'", "'unsafe-inline'", "data:"],
       "style-src":  ["'self'", "'unsafe-inline'"],
       "img-src":    ["'self'", "data:"],
-      "connect-src": ["'self'"],                // bei getrennter Origin unten per CORS öffnen
+      "connect-src": ["'self'", "data:"],     // <— data: erlaubt
       "frame-src":  ["'self'", "https://www.google.com"]
     }
   }
 }));
 
-// Nur setzen, wenn Frontend auf anderer Origin läuft
 if (process.env.FRONTEND_ORIGIN) {
   app.use(cors({
     origin: process.env.FRONTEND_ORIGIN.split(","),
@@ -42,6 +42,7 @@ app.use(express.json({ limit: "1mb" }));
 app.use("/api", authRoutes);
 app.use("/api", cartRoutes);
 app.use("/api", productRoutes);
+app.use("/api", adminRoutes); // <— hinzugefügt
 
 // Static aus Repo-Root
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
