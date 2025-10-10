@@ -572,6 +572,7 @@ document.addEventListener('DOMContentLoaded', async function() {
 
     // Load header and footer
     await loadHTML('header', 'content/header.html');
+    try{initMobileNav();}catch(e){}
     await loadHTML('footer', 'content/footer.html');
     
     // Load all page content
@@ -868,3 +869,21 @@ showNotification = function(message) {
   }
   document.addEventListener('DOMContentLoaded', __syncServerCartToLocal);
 })();
+
+function initMobileNav(){
+  try{
+    const headerEl=document.querySelector('header');
+    if(!headerEl) return;
+    const btn=headerEl.querySelector('.menu-toggle');
+    const nav=headerEl.querySelector('nav');
+    if(!btn||!nav) return;
+    btn.addEventListener('click',()=>{
+      const opened=headerEl.classList.toggle('open');
+      btn.setAttribute('aria-expanded', opened?'true':'false');
+    });
+    nav.querySelectorAll('a').forEach(a=>a.addEventListener('click',()=>{
+      headerEl.classList.remove('open');
+      btn.setAttribute('aria-expanded','false');
+    }));
+  }catch(e){}
+}

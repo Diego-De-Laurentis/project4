@@ -949,3 +949,25 @@ header .logo { display: flex; align-items: center; }
 header .site-logo { display: block; height: 124px; width: auto; object-fit: contain; }
 @media (max-width: 768px) { header .site-logo { height: 36px; } }
 header .header-content nav { margin-left: auto; }
+
+
+/* === Mobile header tuning === */
+header .header-content{display:flex;align-items:center;gap:.75rem}
+header .logo{display:flex;align-items:center}
+header .site-logo{display:block;height:60px;width:auto;object-fit:contain}
+
+.menu-toggle{display:none;border:0;background:transparent;padding:.5rem;margin-left:.5rem;cursor:pointer}
+.menu-toggle .bar{display:block;width:26px;height:3px;margin:5px 0;background:#fff;border-radius:2px;transition:transform .3s,opacity .3s}
+
+@media (max-width: 768px){
+  header{position:relative}
+  header .site-logo{height:36px}
+  header nav{position:absolute;left:0;right:0;top:100%;background:#000;display:none;padding:.5rem 1rem 1rem;border-bottom:1px solid rgba(255,255,255,.15);z-index:50}
+  header.open nav{display:block}
+  header nav ul{display:flex;flex-direction:column;gap:.25rem}
+  .menu-toggle{display:inline-block}
+  header .header-content nav{margin-left:auto}
+}
+@media (max-width: 400px){
+  header .site-logo{height:32px}
+}
