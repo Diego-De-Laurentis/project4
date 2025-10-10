@@ -938,16 +938,8 @@ nav a.active {
     to { opacity: 1; transform: translateY(0); }
 }
 
+header .site-logo{display:block;height:64px;width:auto;object-fit:contain}
 
-/* === Logo sizing update (both desktop & mobile) === */
-header .header-content { min-height: 72px; align-items: center; }
-header .site-logo { height: 72px !important; width: auto; object-fit: contain; display: block; }
+@media (max-width: 768px){ header .site-logo{ height:42px } }
 
-@media (max-width: 768px){
-  header .header-content { min-height: 56px; }
-  header .site-logo { height: 48px !important; }
-}
-
-@media (max-width: 400px){
-  header .site-logo { height: 44px !important; }
-}
+@media (max-width: 400px){ header .site-logo{ height:36px } }
