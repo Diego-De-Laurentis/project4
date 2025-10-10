@@ -1,50 +1,74 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Login - Alali Concepts</title>
-    <link rel="stylesheet" href="auth.css">
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Login - Alali Concepts</title>
+
+  <!-- Globale Styles und Seite-spezifisch -->
+  <link rel="stylesheet" href="/styles.css">
+  <link rel="stylesheet" href="/auth/auth.css">
 </head>
 <body>
-    <div class="auth-container">
-        <div class="auth-form">
-            <div class="auth-header">
-                <h2>Welcome Back</h2>
-                <p>Sign in to your Alali Concepts account</p>
-            </div>
-            
-            <form id="login-form">
-                <div class="form-group">
-                    <label for="login-email">Email Address</label>
-                    <input type="email" id="login-email" name="email" required>
-                </div>
-                
-                <div class="form-group">
-                    <label for="login-password">Password</label>
-                    <input type="password" id="login-password" name="password" required>
-                </div>
-                
-                <button type="submit" class="btn btn-primary">Sign In</button>
-            </form>
-            
-            <div class="auth-footer">
-                <p>Don't have an account? <a href="register.html">Create one here</a></p>
-                <p><a href="../index.html">← Back to Home</a></p>
-            </div>
-            
-            <div class="demo-accounts">
-                <h3>Demo Accounts</h3>
-                <div class="demo-account">
-                    <strong>Regular User:</strong> user@alali.com / user123
-                </div>
-                <div class="demo-account">
-                    <strong>Admin User:</strong> admin@alali.com / admin123
-                </div>
-            </div>
-        </div>
-    </div>
+  <div class="auth-container">
+    <div class="auth-form">
+      <div class="auth-header">
+        <h2>Welcome Back</h2>
+        <p>Sign in to your Alali Concepts account</p>
+      </div>
 
-    <script src="auth.js"></script>
+      <form id="login-form">
+        <div class="form-group">
+          <label for="login-email">Email Address</label>
+          <input type="email" id="login-email" name="email" required />
+        </div>
+
+        <div class="form-group">
+          <label for="login-password">Password</label>
+          <input type="password" id="login-password" name="password" required />
+        </div>
+
+        <button type="submit" class="btn btn-primary">Sign In</button>
+        <div id="login-error" class="error" style="margin-top:.75rem;"></div>
+      </form>
+
+      <div class="auth-footer">
+        <p>Don't have an account? <a href="/auth/register.html">Create one here</a></p>
+        <p><a href="/">← Back to Home</a></p>
+      </div>
+
+      <div class="demo-accounts">
+        <h3>Demo Accounts</h3>
+        <div class="demo-account"><strong>Regular User:</strong> user@alali.com / user123</div>
+        <div class="demo-account"><strong>Admin User:</strong> admin@alali.com / admin123</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Globale Logik und Auth-API -->
+  <script src="/script.js" defer></script>
+  <script src="/auth/auth.js" defer></script>
+
+  <!-- Seiten-Handler: ruft authSystem.login() auf -->
+  <script>
+    document.addEventListener('DOMContentLoaded', () => {
+      const form = document.getElementById('login-form');
+      const err  = document.getElementById('login-error');
+
+      form.addEventListener('submit', async (e) => {
+        e.preventDefault();
+        err.textContent = '';
+        const email = document.getElementById('login-email').value.trim();
+        const password = document.getElementById('login-password').value;
+
+        try {
+          await window.authSystem.login(email, password); // setzt Cookie via /api/auth/login
+          window.location.href = '/';
+        } catch (ex) {
+          err.textContent = 'Login failed. Check email/password.';
+        }
+      });
+    });
+  </script>
 </body>
 </html>
