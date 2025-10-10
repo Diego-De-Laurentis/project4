@@ -1088,7 +1088,9 @@ img, video { max-width: 100%; height: auto; }
 
 
 
-/* Logo sizing (bigger on desktop) */
-header .site-logo { height: 72px; width: auto; object-fit: contain; display:block; }
+/* Logo size (both) */
+header .site-logo { height: 80px; width: auto; object-fit: contain; display: block; }
 
-@media (max-width: 400px) { header .site-logo { height: 42px; } }
+@media (max-width: 400px){
+  header .site-logo { height: 40px; }
+}
