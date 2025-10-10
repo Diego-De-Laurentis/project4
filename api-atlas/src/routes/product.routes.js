@@ -3,15 +3,15 @@ import Product from "../models/product.model.js";
 
 const r = Router();
 
-// liefert Produkte aus deiner DB-Struktur (name, price, image_url, description)
-// akzeptiert auch Dokumente ohne "active" (treated as active)
+// Produkte lesen
 r.get("/products", async (_req, res) => {
   const list = await Product
-    .find({ $or: [ { active: true }, { active: { $exists: false } } ] })
+    .find({ $or: [{ active: true }, { active: { $exists: false } }] })
     .select("name price image_url description category featured");
   res.json(list);
 });
 
+// Einzelnes Produkt
 r.get("/products/:id", async (req, res) => {
   const p = await Product
     .findById(req.params.id)
