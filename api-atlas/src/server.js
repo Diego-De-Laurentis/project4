@@ -15,22 +15,31 @@ import adminRoutes from "./routes/admin.routes.js";
 const app = express();
 app.set("trust proxy", 1);
 
-app.use(helmet({
-  contentSecurityPolicy: {
-    useDefaults: true,
-    directives: {
-      "default-src": ["'self'"],
-      "script-src": ["'self'", "'unsafe-inline'", "data:"],
-      "style-src":  ["'self'", "'unsafe-inline'"],
-      "img-src":    ["'self'", "data:"],
-      "connect-src": ["'self'", "data:"],
-      "frame-src":  ["'self'", "https://www.google.com"]
-    }
-  }
-}));
+// Security headers
+app.use(
+  helmet({
+    contentSecurityPolicy: {
+      useDefaults: true,
+      directives: {
+        "default-src": ["'self'"],
+        "script-src": ["'self'", "'unsafe-inline'", "data:"],
+        "style-src": ["'self'", "'unsafe-inline'"],
+        "img-src": ["'self'", "data:"],
+        "connect-src": ["'self'", "data:"],
+        "frame-src": ["'self'", "https://www.google.com"],
+      },
+    },
+  })
+);
 
+// Optional CORS wenn Frontend auf anderer Origin läuft
 if (process.env.FRONTEND_ORIGIN) {
-  app.use(cors({ origin: process.env.FRONTEND_ORIGIN.split(","), credentials: true }));
+  app.use(
+    cors({
+      origin: process.env.FRONTEND_ORIGIN.split(","),
+      credentials: true,
+    })
+  );
 }
 
 app.use(cookieParser());
@@ -49,11 +58,17 @@ app.use("/api", cartRoutes);
 app.use("/api", productRoutes);
 app.use("/api", adminRoutes);
 
-// Static + SPA
+// Static mounts (müssen vor dem Catch-All stehen)
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 const ROOT = path.join(__dirname, "..", "..");
-app.use(express.static(ROOT));
 
+app.use(express.static(ROOT)); // /index.html, /styles.css, /script.js
+app.use("/auth", express.static(path.join(ROOT, "auth"))); // /auth/login.html, /auth/register.html
+app.use("/admin", express.static(path.join(ROOT, "admin"))); // /admin/admin.html
+app.use("/content", express.static(path.join(ROOT, "content")));
+app.use("/img", express.static(path.join(ROOT, "img")));
+
+// Health + SPA Fallback
 app.get("/healthz", (_req, res) => res.json({ ok: true }));
 app.get("*", (_req, res) => res.sendFile(path.join(ROOT, "index.html")));
 
