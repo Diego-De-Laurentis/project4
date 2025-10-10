@@ -1,0 +1,8 @@
+# Backend-only Dockerfile (keine Änderung am Frontend erforderlich)
+FROM node:20-alpine
+WORKDIR /app
+COPY . .
+RUN cd api-atlas && npm install --production
+ENV NODE_ENV=production
+EXPOSE 8080
+CMD ["node","api-atlas/src/server.js"]
