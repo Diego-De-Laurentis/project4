@@ -35,11 +35,19 @@ if (process.env.FRONTEND_ORIGIN) {
 app.use(cookieParser());
 app.use(express.json({ limit: "1mb" }));
 
+// Debug: DB-Status
+app.get("/api/_debug/db", async (_req, res) => {
+  const { connection } = await import("mongoose");
+  res.json({ state: connection.readyState, name: connection.name, host: connection.host });
+});
+
+// API
 app.use("/api", authRoutes);
 app.use("/api", cartRoutes);
 app.use("/api", productRoutes);
 app.use("/api", adminRoutes);
 
+// Static + SPA
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 const ROOT = path.join(__dirname, "..", "..");
 app.use(express.static(ROOT));
