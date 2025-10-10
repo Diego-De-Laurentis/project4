@@ -17,7 +17,7 @@ body {
 
 .container {
     width: 90%;
-    max-width: 1300px;
+    max-width: 1200px;
     margin: 0 auto;
 }
 
@@ -305,7 +305,7 @@ nav ul li a:hover {
 
 .shop-grid {
     display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(440px, 1fr));
+    grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
     gap: 2rem;
     margin-top: 3rem;
 }
@@ -372,9 +372,7 @@ footer {
 }
 
 .social-icons a {
-    display: inline-flex;
-    align-items: center;
-    justify-content: center;
+    display: inline-block;
     margin-right: 1rem;
     color: #ddd;
     background: #333;
@@ -382,7 +380,7 @@ footer {
     height: 40px;
     border-radius: 4px;
     text-align: center;
-    
+    line-height: 40px;
     transition: all 0.3s;
 }
 
@@ -457,7 +455,7 @@ footer {
 /* About Page Styles */
 .about-container {
     flex: 1;
-    max-width: 1320px;
+    max-width: 1200px;
     margin: 0 auto;
     padding: 2rem;
 }
@@ -502,7 +500,7 @@ footer {
     justify-content: center;
     gap: 20px;
     padding: 20px 0;
-    max-width: 1320px;
+    max-width: 1200px;
     margin: 0 auto;
 }
 
@@ -553,7 +551,7 @@ footer {
 /* Contact Page Styles */
 .contact-container {
     flex: 1;
-    max-width: 1320px;
+    max-width: 1200px;
     margin: 0 auto;
     padding: 2rem;
 }
@@ -656,7 +654,7 @@ footer {
 }
 
 .about-container {
-    max-width: 1320px;
+    max-width: 1200px;
     margin: 0 auto;
     padding: 0 2rem;
 }
@@ -719,7 +717,7 @@ footer {
 }
 
 .contact-container {
-    max-width: 1320px;
+    max-width: 1200px;
     margin: 0 auto;
     padding: 0 2rem;
 }
@@ -737,7 +735,7 @@ footer {
 
 .contact-details {
     display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(440px, 1fr));
+    grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
     gap: 2rem;
     margin-top: 3rem;
 }
@@ -832,7 +830,7 @@ footer {
 
 .hours-grid {
     display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(440px, 1fr));
+    grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
     gap: 1rem;
 }
 
@@ -941,156 +939,15 @@ nav a.active {
 }
 
 
-/* --- Responsive helpers --- */
-img, video { max-width: 100%; height: auto; }
+/* === Logo sizing update (both desktop & mobile) === */
+header .header-content { min-height: 72px; align-items: center; }
+header .site-logo { height: 72px !important; width: auto; object-fit: contain; display: block; }
 
-/* Hamburger button */
-.menu-toggle {
-    display: none;
-    border: none;
-    background: transparent;
-    cursor: pointer;
-    padding: 0.5rem;
-    margin-left: 1rem;
+@media (max-width: 768px){
+  header .header-content { min-height: 56px; }
+  header .site-logo { height: 48px !important; }
 }
-
-.menu-toggle .bar {
-    display: block;
-    width: 26px;
-    height: 3px;
-    margin: 5px 0;
-    background: #fff;
-    transition: transform 0.3s ease, opacity 0.3s ease;
-    border-radius: 2px;
-}
-
-/* Mobile nav dropdown */
-@media (max-width: 768px) {
-    .header-content {
-        gap: .5rem;
-    }
-    nav ul {
-        flex-direction: column;
-        gap: 0;
-    }
-    header nav {
-        position: absolute;
-        left: 0;
-        right: 0;
-        top: 100%;
-        background: #000;
-        display: none;
-        padding: .5rem 1rem 1rem;
-        border-bottom: 1px solid rgba(255,255,255,0.15);
-    }
-    header.open nav { display: block; }
-    header nav ul li {
-        margin: .25rem 0;
-    }
-    .menu-toggle { display: inline-block; }
-    /* Keep desktop nav hidden when collapsed */
-    header:not(.open) nav ul { display: flex; }
-}
-
-/* Larger tap targets on mobile */
-@media (max-width: 768px) {
-    nav ul li a { padding: .5rem 0; display: block; }
-    .featured-products { padding: 3rem 0; }
-    .hero .hero-content h1 { font-size: clamp(1.6rem, 6vw, 2.4rem); }
-}
-
-/* Cart page responsive */
-@media (max-width: 768px) {
-    .cart-item {
-        grid-template-columns: 70px 1fr;
-    }
-    .cart-item .item-actions {
-        grid-column: 1 / -1;
-        justify-content: space-between;
-    }
-}
-
-/* Auth forms */
-@media (max-width: 768px) {
-    .auth-container { padding: 1rem; }
-    .auth-form { max-width: 100%; }
-}
-
-
-/* --- Contact page mobile layout fixes --- */
-@media (max-width: 768px) {
-  .ceo-section {
-    flex-direction: column;
-    text-align: center;
-    align-items: center;
-    padding: 2rem 1rem;
-    gap: 1rem;
-  }
-  .ceo-photo {
-    width: 160px;
-    height: 160px;
-  }
-  .ceo-info { 
-    max-width: 100%; 
-  }
-  .map-section { 
-    padding: 1.25rem; 
-  }
-  .map-placeholder { 
-    padding: 0; 
-    background: transparent; 
-  }
-  .map-placeholder iframe {
-    width: 100%;
-    height: 600px;
-    border: 0;
-    display: block;
-  }
-}
-
-
-/* --- Contact details wider cards & hero centering tweaks --- */
-@media (min-width: 1024px) {
-  .contact-details { grid-template-columns: repeat(auto-fit, minmax(360px, 1fr)); }
-}
-
-.hero {
-  /* shift focus slightly upward so the subject is more centered visually */
-  background-position: center 40%;
-}
-
-/* On very small screens, keep subject centered */
-@media (max-width: 480px) {
-  .hero { background-position: center 45%; }
-}
-
-
-/* --- Extra mobile tuning (contact/map/hero) --- */
-@media (max-width: 768px) {
-  .map-placeholder iframe { height: 380px; }
-  .hero { background-position: center 40% !important; }
-}
-
-
-
-
-.social-icons a svg { display: block; }
-
-
-
-
-.social-icons svg {
-  width: 20px;
-  height: 20px;
-  display: block;
-}
-
-
-
-
-/* Logo size (both) */
-header .site-logo { height: 80px; width: auto; object-fit: contain; display: block; }
 
 @media (max-width: 400px){
-  header .site-logo { height: 40px; }
+  header .site-logo { height: 44px !important; }
 }
