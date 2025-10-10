@@ -27,7 +27,7 @@ services:
       - "3000:3000"
     environment:
       NODE_ENV: production
-      MONGODB_URI: mongodb://admin:password123@mongodb:27017/alali_concepts?authSource=admin
+      MONGODB_URI: mongodb+srv://alali:Alali1995!@project4.s8sfdmr.mongodb.net/?retryWrites=true&w=majority&appName=project4
       PORT: 3000
     depends_on:
       - mongodb
@@ -60,4 +60,5 @@ volumes:
 
 networks:
   alali-network:
+
     driver: bridge
